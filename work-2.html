@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Modern Apparel E-Commerce | Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root { --ec-bg: #f8fafc; --ec-text: #0f172a; --ec-muted: #64748b; --ec-border: #e2e8f0; }
+    body { background: var(--ec-bg); color: var(--ec-text); font-family: sans-serif; margin: 0; line-height: 1.6; overflow-x: hidden; }
+    
+    .nav { padding: 1.5rem 4rem; display: flex; justify-content: space-between; border-bottom: 1px solid var(--ec-border); position: sticky; top: 0; background: rgba(248, 250, 252, 0.9); z-index: 50; backdrop-filter: blur(10px); }
+    .brand { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.1em; }
+    
+    .product-layout { display: flex; max-width: 1400px; margin: 0 auto; padding: 4rem; gap: 4rem; }
+    .gallery { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .gallery-img { background: #cbd5e1; border-radius: 8px; width: 100%; aspect-ratio: 4/5; animation: fadeUp 0.8s backwards; overflow: hidden; }
+    .gallery-img:nth-child(2) { animation-delay: 0.1s; }
+    .gallery-img:nth-child(3) { grid-column: 1 / -1; aspect-ratio: 16/9; animation-delay: 0.2s; }
+    img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .gallery-img:hover img { transform: scale(1.05); }
+    
+    .product-info-wrapper { width: 400px; }
+    .product-info { position: sticky; top: 8rem; animation: fadeLeft 0.8s backwards; animation-delay: 0.3s; }
+    .category { font-size: 0.85rem; color: var(--ec-muted); letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem; text-transform: uppercase; }
+    .title { font-size: 3rem; line-height: 1.1; margin: 0 0 1rem 0; font-weight: 600; }
+    .price { font-size: 1.5rem; color: var(--ec-muted); margin-bottom: 2rem; }
+    .description { color: var(--ec-muted); margin-bottom: 2.5rem; font-size: 1rem; }
+    
+    .sizes { display: flex; gap: 1rem; margin-bottom: 2rem; }
+    .size-btn { width: 60px; height: 60px; border: 1px solid var(--ec-border); border-radius: 8px; background: #fff; cursor: pointer; transition: all 0.2s; font-size: 1rem; }
+    .size-btn.active { background: var(--ec-text); color: #fff; border-color: var(--ec-text); }
+    
+    .add-to-cart { width: 100%; padding: 1.25rem; background: var(--ec-text); color: #fff; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.1em; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .add-to-cart:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+    
+    /* Extra Section: Related */
+    .related { max-width: 1400px; margin: 0 auto; padding: 4rem; border-top: 1px solid var(--ec-border); }
+    .related h2 { font-size: 2rem; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+    .rel-item-img { aspect-ratio: 3/4; background: #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .rel-title { font-weight: 600; font-size: 0.95rem; }
+    .rel-price { color: var(--ec-muted); font-size: 0.9rem; }
+    
+    .cart-modal { position: fixed; top: 6rem; right: -400px; width: 320px; background: #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.08); border-radius: 12px; padding: 1.5rem; transition: right 0.5s; z-index: 1000; border-left: 4px solid #10b981; }
+    .cart-modal.show { right: 2rem; }
+    .return-btn { position: fixed; bottom: 2rem; left: 2rem; background: var(--ec-text); color: #fff; padding: 0.8rem 1.5rem; border-radius: 30px; text-decoration: none; font-weight: 600; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    
+    @keyframes fadeUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeLeft { 0% { opacity: 0; transform: translateX(40px); } 100% { opacity: 1; transform: translateX(0); } }
+    
+    @media (max-width: 1024px) {
+      .product-layout { flex-direction: column; padding: 2rem; }
+      .product-info-wrapper { width: 100%; }
+      .product-info { position: static; }
+      .nav { padding: 1.5rem 2rem; }
+      .related { padding: 2rem; }
+      .related-grid { grid-template-columns: 1fr 1fr; }
+      .gallery { grid-template-columns: 1fr; }
+      .gallery-img:nth-child(3) { aspect-ratio: 4/5; }
+    }
+    
+    /* Search Overlay Styles */
+    .search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(248, 250, 252, 0.98); z-index: 2000; display: flex; flex-direction: column; align-items: center; padding-top: 15vh; opacity: 0; pointer-events: none; transition: opacity 0.4s; backdrop-filter: blur(10px); }
+    .search-overlay.active { opacity: 1; pointer-events: all; }
+    .close-search { position: absolute; top: 2rem; right: 4rem; background: none; border: none; font-size: 3rem; font-weight: 300; cursor: pointer; color: var(--ec-muted); transition: color 0.3s; }
+    .close-search:hover { color: var(--ec-text); }
+    .search-container { width: 80%; max-width: 800px; }
+    .search-input { width: 100%; font-size: 3rem; font-family: sans-serif; font-weight: 600; color: var(--ec-text); border: none; border-bottom: 2px solid var(--ec-border); background: transparent; padding: 1rem 0; outline: none; transition: border-color 0.3s; }
+    .search-input:focus { border-color: var(--ec-text); }
+    .search-input::placeholder { color: #cbd5e1; font-weight: 400; }
+    .search-results { margin-top: 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; opacity: 0; transform: translateY(20px); transition: all 0.4s; }
+    .search-results.show { opacity: 1; transform: translateY(0); }
+    .result-card { display: flex; gap: 1rem; align-items: center; padding: 1rem; border-radius: 12px; transition: background 0.2s; cursor: pointer; }
+    .result-card:hover { background: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .result-img { width: 80px; height: 80px; background: #e2e8f0; border-radius: 8px; object-fit: cover; }
+    
+    /* Checkout Overlay Styles */
+    .checkout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s; backdrop-filter: blur(5px); }
+    .checkout-overlay.active { opacity: 1; pointer-events: all; }
+    .checkout-modal { width: 90%; max-width: 450px; background: #fff; border-radius: 20px; padding: 3rem; box-shadow: 0 30px 60px rgba(0,0,0,0.2); transform: translateY(30px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .checkout-overlay.active .checkout-modal { transform: translateY(0); }
+    .pay-spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .title { font-size: 2.2rem; }
+      .related-grid { grid-template-columns: 1fr 1fr; }
+      .sizes { flex-wrap: wrap; }
+      .search-input { font-size: 2rem; }
+      .search-results { grid-template-columns: 1fr; }
+      .close-search { right: 2rem; }
+      .checkout-modal { padding: 2rem; }
+    }
+    
+    /* SPA View Transitions */
+    .view { display: none; animation: fadeIn 0.4s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+
+    /* Shop Hero */
+    .shop-hero { height: 50vh; background: #e2e8f0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; margin-bottom: 4rem; }
+    .shop-hero img { position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; opacity: 0.8; filter: brightness(0.8); }
+    .hero-text { position: relative; z-index: 10; text-align: center; color: #fff; }
+    .hero-text h1 { font-family: serif; font-size: clamp(2.5rem, 5vw, 4rem); margin: 0; font-weight: 400; letter-spacing: 0.05em; }
+    .hero-text p { font-size: 1rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 1rem; color: #cbd5e1; }
+
+    /* Shop Grid */
+    .shop-container { max-width: 1400px; margin: 0 auto; padding: 0 4rem 4rem 4rem; }
+    .shop-container h2 { font-size: 2rem; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+    
+    .back-btn { background: none; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--ec-muted); transition: color 0.3s; padding:0; margin: 2rem auto 0 auto; max-width: 1400px; width: 100%; box-sizing: border-box; padding-left: 4rem;}
+    .back-btn:hover { color: var(--ec-text); }
+    
+    .rel-item.clickable { cursor: pointer; transition: transform 0.3s; }
+    .rel-item.clickable:hover { transform: translateY(-5px); }
+    
+    /* Footer */
+    .shop-footer { background: #fff; border-top: 1px solid var(--ec-border); padding: 4rem 4rem 2rem 4rem; margin-top: auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 3rem; margin-bottom: 4rem; max-width: 1400px; margin-inline: auto; }
+    .footer-links h4, .footer-newsletter h4 { font-weight: 600; font-size: 0.95rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .footer-links ul { list-style: none; padding: 0; margin: 0; }
+    .footer-links li { margin-bottom: 0.8rem; }
+    .footer-links a { color: var(--ec-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--ec-text); }
+    .newsletter-form { display: flex; border-bottom: 1px solid var(--ec-border); padding-bottom: 0.5rem; transition: border-color 0.3s; }
+    .newsletter-form:focus-within { border-color: var(--ec-text); }
+    .newsletter-form input { border: none; outline: none; flex-grow: 1; font-size: 0.9rem; font-family: inherit; background: transparent;}
+    .newsletter-form button { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+    .footer-bottom { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--ec-border); padding-top: 2rem; color: var(--ec-muted); font-size: 0.85rem; }
+    .social-icons { display: flex; gap: 1.5rem; }
+    .social-icons a { color: var(--ec-muted); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+    .social-icons a:hover { color: var(--ec-text); }
+    
+    @media (max-width: 1024px) {
+      .shop-container, .back-btn { padding-left: 2rem; padding-right: 2rem; }
+      .shop-grid { grid-template-columns: 1fr 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .shop-grid, .related-grid { grid-template-columns: 1fr 1fr; }
+      .shop-hero { height: 40vh; margin-bottom: 2rem; }
+      .back-btn { padding-left: 2rem; margin-top: 1rem; }
+      .rel-title { font-size: 0.8rem; }
+      .rel-price { font-size: 0.8rem; }
+      .shop-footer { padding: 3rem 2rem 2rem 2rem; }
+      .footer-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .footer-bottom { flex-direction: column; gap: 1rem; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">STUDIO NORD.</div>
+    <div style="display:flex; gap:2rem; font-weight:600; align-items:center;">
+      <button id="openSearchBtn" style="background:none;border:none;cursor:pointer;font-size:1rem;font-weight:600;padding:0;color:var(--ec-text);display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span data-ja="検索" data-en="Search">Search</span>
+      </button>
+      <div id="openCartBtn" style="cursor:pointer;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span data-ja="カート" data-en="Cart">Cart</span> (<span id="cartCount">0</span>)
+      </div>
+    </div>
+  </nav>
+
+  <main>
+  <section id="homeView" class="view active">
+    <header class="shop-hero">
+      <img src="img/parka-front.png" alt="Hero">
+      <div class="hero-text">
+        <h1 data-ja="2026 春季コレクション" data-en="SPRING '26 COLLECTION">SPRING '26 COLLECTION</h1>
+        <p data-ja="新次元の日常を。" data-en="Design your new normal.">Design your new normal.</p>
+      </div>
+    </header>
+    <div class="shop-container">
+      <section style="margin-bottom: 5rem;">
+        <h2 data-ja="新着アイテム" data-en="New Arrivals" style="font-size: 1.5rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;">New Arrivals</h2>
+        <div class="shop-grid" id="newArrivalsGrid"></div>
+      </section>
+      
+      <section style="margin-bottom: 5rem;">
+        <h2 data-ja="ベストセラー" data-en="Best Sellers" style="font-size: 1.5rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Best Sellers</h2>
+        <div class="shop-grid" id="bestSellersGrid"></div>
+      </section>
+
+      <section style="margin-bottom: 2rem;">
+        <h2 data-ja="全商品" data-en="All Products" style="font-size: 1.5rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;">All Products</h2>
+        <div class="shop-grid" id="mainShopGrid"></div>
+      </section>
+    </div>
+  </section>
+
+  <section id="detailView" class="view">
+    <button class="back-btn" onclick="goHome()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      <span data-ja="カタログに戻る" data-en="Back to Catalog">Back to Catalog</span>
+    </button>
+  <article class="product-layout">
+    <figure class="gallery" style="margin:0;">
+      <div class="gallery-img"><img src="img/parka-front.png" alt="Tech-Wool Parka Front"></div>
+      <div class="gallery-img"><img src="img/parka-back.png" alt="Tech-Wool Parka Back"></div>
+      <div class="gallery-img"><img src="img/parka-detail.png" alt="Tech-Wool Parka Detail"></div>
+    </figure>
+    
+    <div class="product-info-wrapper">
+      <div class="product-info">
+        <span class="category" data-ja="アウターウェア // 2026 春" data-en="Outerwear // Spring 2026">Outerwear // Spring 2026</span>
+        <h1 class="title" data-ja="テックウール ミニマリスト・パーカ" data-en="Tech-Wool Minimalist Parka">Tech-Wool Minimalist Parka</h1>
+        <div class="price">¥ 48,000 <span style="font-size:1rem;color:#94a3b8;text-decoration:line-through;margin-left:10px;">¥ 56,000</span></div>
+        <p class="description" data-ja="現代の都市環境のために設計。高密度のテクニカルウールが、美しいドレープを保ちながら優れた耐水性を発揮します。隠しジッパーと立体裁断による完璧なシルエット。" data-en="Engineered for the modern urban environment. High-density technical wool provides excellent water resistance without sacrificing drape. Features hidden zipper construction and articulated sleeves for a flawless silhouette.">Engineered for the modern urban environment. High-density technical wool provides excellent water resistance without sacrificing drape. Features hidden zipper construction and articulated sleeves for a flawless silhouette.</p>
+        
+        <div style="font-size:0.85rem; font-weight:600; margin-bottom:1rem; text-transform:uppercase;"><span data-ja="サイズ:" data-en="Size:">Size:</span> <span id="curSizeDisp" style="color:var(--ec-muted);font-weight:400;">M</span></div>
+        <div class="sizes">
+          <button class="size-btn">S</button>
+          <button class="size-btn active">M</button>
+          <button class="size-btn">L</button>
+          <button class="size-btn">XL</button>
+        </div>
+        
+        <button class="add-to-cart" id="addBtn" data-ja="バッグに追加" data-en="Add to Bag">Add to Bag</button>
+        
+        <div style="margin-top: 3rem; border-top: 1px solid var(--ec-border); padding-top: 2rem;">
+            <div style="font-weight:600; margin-bottom:1rem;" data-ja="商品詳細" data-en="Product Details">Product Details</div>
+            <ul id="productFeaturesList" style="color:var(--ec-muted); padding-left:1.2rem; line-height: 1.8;">
+              <li data-en="100% Technical Merino Wool" data-ja="上質なテクニカルメリノウール100%">100% Technical Merino Wool</li>
+              <li data-en="Water repellent coating (DWR)" data-ja="耐久撥水（DWR）コーティング">Water repellent coating (DWR)</li>
+              <li data-en="Invisible magnetic pockets" data-ja="マグネット式ステルスポケット">Invisible magnetic pockets</li>
+              <li data-en="Relaxed, oversized fit" data-ja="リラックスしたオーバーサイズフィット">Relaxed, oversized fit</li>
+            </ul>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <section class="related">
+    <h2 data-ja="こちらもおすすめ" data-en="You might also like">You might also like</h2>
+    <div class="related-grid" id="related-grid">
+      <!-- Rendered by JS -->
+    </div>
+  </section>
+  </section> <!-- end detailView -->
+  </main>
+
+  <footer class="shop-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand" style="margin-bottom:1rem;">STUDIO NORD.</div>
+        <p style="color:var(--ec-muted); font-size:0.85rem; max-width:250px;" data-ja="モダンなミニマリズムを追求し、機能性と美しさを両立する次世代のアパレルデザイン。" data-en="Pursuing modern minimalism. Next-generation apparel design balancing functionality and aesthetics.">Pursuing modern minimalism. Next-generation apparel design balancing functionality and aesthetics.</p>
+      </div>
+      <div class="footer-links">
+        <h4 data-ja="ショップ" data-en="Shop">Shop</h4>
+        <ul>
+          <li><a href="#" onclick="goShop(event)" data-ja="新着アイテム" data-en="New Arrivals">New Arrivals</a></li>
+          <li><a href="#" onclick="goShop(event)" data-ja="ベストセラー" data-en="Best Sellers">Best Sellers</a></li>
+          <li><a href="#" onclick="goShop(event)" data-ja="コレクション" data-en="Collections">Collections</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4 data-ja="サポート" data-en="Support">Support</h4>
+        <ul>
+          <li><a href="#" onclick="alertDemo(event)" data-ja="よくある質問" data-en="FAQ">FAQ</a></li>
+          <li><a href="#" onclick="alertDemo(event)" data-ja="配送と返品" data-en="Shipping & Returns">Shipping & Returns</a></li>
+          <li><a href="#" onclick="alertDemo(event)" data-ja="お問い合わせ" data-en="Contact Us">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-newsletter">
+        <h4 data-ja="ニュースレター" data-en="Newsletter">Newsletter</h4>
+        <p style="color:var(--ec-muted); font-size:0.85rem; margin-bottom:1rem;" data-ja="最新コレクションや限定オファーを受け取る。" data-en="Sign up for the latest collections and exclusive offers.">Sign up for the latest collections and exclusive offers.</p>
+        <form class="newsletter-form" id="nlForm" onsubmit="subscribeNl(event)">
+          <input type="email" id="nlEmail" placeholder="Email address" aria-label="Email address" required />
+          <button type="submit" id="nlBtn">→</button>
+        </form>
+        <div id="nlSuccess" style="display:none; color:#10b981; font-weight:600; font-size:0.9rem; margin-top:0.5rem;" data-ja="✓ 登録が完了しました" data-en="✓ Successfully subscribed">✓ Successfully subscribed</div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="copy" data-ja="&copy; 2026 STUDIO NORD. 無断複写・転載を禁じます。" data-en="&copy; 2026 STUDIO NORD. All rights reserved.">&copy; 2026 STUDIO NORD. All rights reserved.</div>
+      <div class="social-icons">
+        <a href="#">IG</a>
+        <a href="#">TW</a>
+        <a href="#">YT</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cart-modal" id="cartModal">
+    <div style="font-weight:600; color:#10b981; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+      <span>✓ Added to Bag</span>
+      <button id="closeCartBtn" style="background:none;border:none;cursor:pointer;font-size:1.5rem;color:var(--ec-muted);">&times;</button>
+    </div>
+    
+    <div id="cartItemsContainer" style="max-height: 50vh; overflow-y: auto; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+      <!-- JS Injected Items -->
+    </div>
+    
+    <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem; font-weight:600; font-size: 1.1rem; border-top: 1px solid var(--ec-border); padding-top: 1rem;">
+      <span data-ja="小計" data-en="Subtotal">Subtotal</span><span id="cartSubtotal" style="color:var(--ec-text);">¥ 0</span>
+    </div>
+
+    <button id="checkoutBtn" style="width: 100%; padding: 1.1rem; background: var(--ec-text); color: #fff; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.05em; display:flex; justify-content:center; align-items:center; gap:8px;">
+      <span data-ja="レジへ進む" data-en="Proceed to Checkout">Proceed to Checkout</span> 
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </button>
+  </div>
+
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="searchOverlay">
+    <button class="close-search" id="closeSearchBtn">&times;</button>
+    <div class="search-container">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search for products, collections..." autocomplete="off">
+      <div class="search-results" id="searchResults">
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Overlay -->
+  <div class="checkout-overlay" id="checkoutOverlay">
+    <div class="checkout-modal">
+      <h2 style="margin: 0 0 1.5rem 0; font-weight: 600; border-bottom: 1px solid var(--ec-border); padding-bottom: 1rem; color:var(--ec-text);" data-ja="エクスプレス決済" data-en="Express Checkout">Express Checkout</h2>
+      <div id="checkoutItemsList" style="max-height: 200px; overflow-y: auto; margin-bottom: 1rem;">
+        <!-- Injected by JS -->
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:2rem; font-size:0.9rem; color:var(--ec-muted);">
+        <span data-ja="送料（通常）" data-en="Shipping (Standard)">Shipping (Standard)</span><span data-ja="無料" data-en="Free">Free</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:2rem; font-size:1.2rem; font-weight:800; border-top: 1px solid var(--ec-border); padding-top: 1rem;">
+        <span data-ja="合計" data-en="Total">Total</span><span id="checkoutTotal" style="color:var(--ec-text);">¥ 0</span>
+      </div>
+      <button id="payBtn" style="width: 100%; padding: 1.2rem; background: #000; color: #fff; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; display:flex; justify-content:center; align-items:center; gap:10px;">
+        <span id="payBtnText">Pay with Apple Pay</span>
+      </button>
+      <button id="closeCheckoutBtn" style="width: 100%; padding: 1rem; background: transparent; color: var(--ec-muted); font-size: 0.95rem; font-weight: 600; border: none; cursor: pointer; margin-top: 0.5rem; transition: color 0.2s;" data-ja="カートに戻る" data-en="Return to Cart">Return to Cart</button>
+    </div>
+  </div>
+
+  <a href="index.html#works" class="return-btn" data-ja="← ポートフォリオに戻る" data-en="← Back to Portfolio">← Back to Portfolio</a>
+  
+  <div class="demo-lang-switch" style="position:fixed; bottom:2rem; right:2rem; z-index:100; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:0.5rem; border-radius:30px; display:flex; gap:0.5rem; border:1px solid rgba(255,255,255,0.1);">
+    <button class="lang-btn" data-lang="en" style="background:transparent; border:none; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600; padding:0.4rem 0.8rem; border-radius:20px; transition:all 0.3s;">EN</button>
+    <button class="lang-btn" data-lang="ja" style="background:transparent; border:none; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600; padding:0.4rem 0.8rem; border-radius:20px; transition:all 0.3s;">JA</button>
+  </div>
+  <style>
+    .demo-lang-switch .lang-btn.is-active { background: #fff !important; color: #000 !important; }
+  </style>
+  <script src="js/i18n.js"></script>
+
+  <script>
+    const productsData = [
+      {
+        id: 'parka', img: 'img/parka-front.png', titleEn: 'Tech-Wool Minimalist Parka', titleJa: 'テックウール ミニマリスト・パーカ', price: '¥ 48,000', oldPrice: '¥ 56,000', catEn: 'Outerwear // Spring 2026', catJa: 'アウターウェア // 2026 春', descEn: 'Engineered for the modern urban environment. High-density technical wool provides excellent water resistance without sacrificing drape. Features hidden zipper construction and articulated sleeves for a flawless silhouette.', descJa: '現代の都市環境のために設計。高密度のテクニカルウールが、美しいドレープを保ちながら優れた耐水性を発揮します。隠しジッパーと立体裁断による完璧なシルエット。', gallery: ['img/parka-front.png', 'img/parka-back.png', 'img/parka-detail.png'],
+        featuresEn: ['100% Technical Merino Wool', 'Water repellent coating (DWR)', 'Invisible magnetic pockets', 'Relaxed, oversized fit'], featuresJa: ['上質なテクニカルメリノウール100%', '耐久撥水（DWR）コーティング', 'マグネット式ステルスポケット', 'リラックスしたオーバーサイズフィット']
+      },
+      {
+        id: 'crewneck', img: 'img/merino-crewneck.png', titleEn: 'Merino Crewneck', titleJa: 'メリノ クルーネック', price: '¥ 18,000', oldPrice: '', catEn: 'Knitwear // Core Collection', catJa: 'ニットウェア // 定番コレクション', descEn: '100% premium merino wool crewneck. Perfect for layering in any season. Ethically sourced and exceptionally soft.', descJa: '100%上質なメリノウールを使用したクルーネック。どんな季節のレイヤリングにも最適です。倫理的に調達された非常に柔らかい素材。', gallery: ['img/merino-crewneck.png', 'img/merino-crewneck.png', 'img/merino-crewneck.png'],
+        featuresEn: ['100% Premium Merino Wool', 'Breathable and temperature regulating', 'Ribbed cuffs and hem', 'Slim fit design'], featuresJa: ['プレミアムメリノウール100%', '高い通気性と温度調節機能', 'リブ編みの袖口と裾', 'スリムフィットデザイン']
+      },
+      {
+        id: 'pant', img: 'img/tech-cargo-pant.png', titleEn: 'Technical Cargo Pant', titleJa: 'テクニカル カーゴパンツ', price: '¥ 29,000', oldPrice: '', catEn: 'Bottoms // Utility', catJa: 'ボトムス // ユーティリティ', descEn: 'Water-resistant cargo pants with magnetic pocket closures. Ergonomic fit tailored for movement.', descJa: 'マグネット式ポケットを備えた耐水性カーゴパンツ。人間工学に基づいた動きやすいフィット感。', gallery: ['img/tech-cargo-pant.png', 'img/tech-cargo-pant.png', 'img/tech-cargo-pant.png'],
+        featuresEn: ['Water-resistant stretch fabric', 'Magnetic cargo pockets', 'Articulated knees for mobility', 'Adjustable waistband'], featuresJa: ['耐水性ストレッチ素材', 'マグネット式カーゴポケット', '可動域を広げる立体裁断の膝', '調節可能なウエストバンド']
+      },
+      {
+        id: 'trainer', img: 'img/lightweight-trainer.png', titleEn: 'Lightweight Trainer', titleJa: 'ライトウェイト トレーナー', price: '¥ 22,000', oldPrice: '¥ 25,000', catEn: 'Footwear // Active', catJa: 'フットウェア // アクティブ', descEn: 'Ultra-lightweight trainers designed for all-day comfort and agility. Advanced cushioning sole.', descJa: '1日中快適に過ごせるように設計された超軽量トレーナー。高度なクッション性のあるソール。', gallery: ['img/lightweight-trainer.png', 'img/lightweight-trainer.png', 'img/lightweight-trainer.png'],
+        featuresEn: ['Ultra-lightweight mesh upper', 'Advanced energy-return midsole', 'Non-slip rubber outsole', 'Breathable inner lining'], featuresJa: ['超軽量メッシュアッパー', '反発性の高いミッドソール', '滑りにくいラバーアウトソール', '通気性の高いインナーライニング']
+      },
+      {
+        id: 'tshirt', img: 'img/seamless-tshirt.png', titleEn: 'Seamless T-Shirt', titleJa: 'シームレス Tシャツ', price: '¥ 8,500', oldPrice: '', catEn: 'Tops // Core', catJa: 'トップス // 定番', descEn: 'A zero-seam construction t-shirt made from highly breathable synthetic blend. Perfect minimal aesthetic.', descJa: '縫い目のないゼロシーム構造と高い通気性を誇る合成ブレンドのTシャツ。完璧なミニマルデザイン。', gallery: ['img/seamless-tshirt.png', 'img/seamless-tshirt.png', 'img/seamless-tshirt.png'],
+        featuresEn: ['Zero-seam construction', 'Moisture-wicking tech', 'Anti-odor treatment', 'True to size'], featuresJa: ['ゼロシーム構造', '吸湿速乾テクノロジー', '防臭加工', '標準的なサイズ感']
+      },
+      {
+        id: 'cap', img: 'img/tech-cap.png', titleEn: 'Apex Tech 6-Panel Cap', titleJa: 'APEX テック 6パネルキャップ', price: '¥ 7,000', oldPrice: '', catEn: 'Accessories // Headwear', catJa: 'アクセサリー // ヘッドウェア', descEn: 'A minimalist, high-end technical 6-panel baseball cap. Engineered to be lightweight, perfectly structured, and weather-resistant.', descJa: 'ミニマリストでハイエンドなテクニカル6パネルベースボールキャップ。軽量で美しいフォルムを保ち、耐候性に優れています。', gallery: ['img/tech-cap.png', 'img/tech-cap.png', 'img/tech-cap.png'],
+        featuresEn: ['Lightweight technical fabric', 'Subtle embossed logo', 'Adjustable metal clasp', 'Water-repellent finish'], featuresJa: ['軽量テクニカルファブリック', 'さりげないエンボスロゴ', '調節可能なメタルクラスプ', '耐久撥水仕上げ']
+      },
+      {
+        id: 'bag', img: 'img/utility-bag.png', titleEn: 'Modular Crossbody Sling', titleJa: 'モジュラー クロスボディ スリング', price: '¥ 19,500', oldPrice: '¥ 24,000', catEn: 'Accessories // Bags', catJa: 'アクセサリー // バッグ', descEn: 'A sleek, modern modular crossbody utility sling bag with matte black hardware. Designed to securely carry your daily essentials while maintaining a low profile.', descJa: 'マットブラックの金具パーツをあしらった、洗練されたモダンなスリングバッグ。日常の必需品を安全に持ち運びながら、スマートな薄型のシルエットを保ちます。', gallery: ['img/utility-bag.png', 'img/utility-bag.png', 'img/utility-bag.png'],
+        featuresEn: ['Waterproof exterior zip', 'Fidlock magnetic buckle', 'Multiple modular compartments', 'Adjustable padded strap'], featuresJa: ['防水エクステリアジップ', 'Fidlockマグネットバックル', '複数のモジュラーコンパートメント', '調節可能なパッド入りストラップ']
+      },
+      {
+        id: 'wallet', img: 'img/card-holder.png', titleEn: 'Swift Leather Cardholder', titleJa: 'スウィフトレザー カードホルダー', price: '¥ 12,000', oldPrice: '', catEn: 'Accessories // Small Leather Goods', catJa: 'アクセサリー // スモールレザーグッズ', descEn: 'Crafted from premium black leather. This extremely minimalist slim cardholder fits seamlessly into any pocket while making a subtle statement of luxury.', descJa: '最高級のブラックレザーから作られた究極のミニマリストカードホルダー。どんなポケットにもシームレスに収まり、さりげない上質さを主張します。', gallery: ['img/card-holder.png', 'img/card-holder.png', 'img/card-holder.png'],
+        featuresEn: ['Full-grain calfskin leather', '3 precise card slots', 'Central cash pocket', 'Hand-painted edges'], featuresJa: ['フルグレインカーフスキンレザー', '精密な3つのカードスロット', '中央のキャッシュポケット', '手塗りのコバ仕上げ']
+      }
+    ];
+
+    function renderProductCards(containerId, arg = null) {
+      const container = document.getElementById(containerId);
+      if(!container) return;
+      container.innerHTML = '';
+      
+      let items = productsData;
+      if (Array.isArray(arg)) {
+        items = productsData.filter(p => arg.includes(p.id));
+      } else if (typeof arg === 'string') {
+        items = productsData.filter(p => p.id !== arg);
+      }
+
+      items.forEach(p => {
+        const div = document.createElement('article');
+        div.className = 'rel-item clickable';
+        div.onclick = () => openProduct(p.id);
+        const isJa = document.documentElement.lang === 'ja';
+        const title = isJa ? p.titleJa : p.titleEn;
+        
+        let priceHtml = `<div class="rel-price">${p.price}</div>`;
+        let badgeHtml = '';
+        
+        if(p.oldPrice) {
+          const oPrice = parseInt(p.oldPrice.replace(/[^0-9]/g, ''));
+          const cPrice = parseInt(p.price.replace(/[^0-9]/g, ''));
+          if(oPrice > 0 && cPrice < oPrice) {
+            const discount = Math.round((1 - cPrice / oPrice) * 100);
+            badgeHtml = `<div style="position:absolute; top:10px; left:10px; background:#ef4444; color:#fff; font-size:0.75rem; font-weight:700; padding:4px 8px; border-radius:4px; z-index:2; letter-spacing:0.05em;">-${discount}%</div>`;
+            priceHtml = `
+              <div class="rel-price" style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="color:#ef4444;">${p.price}</span>
+                <span style="font-size:0.8rem; color:#94a3b8; text-decoration:line-through; font-weight:400;">${p.oldPrice}</span>
+              </div>
+            `;
+          }
+        }
+
+        div.innerHTML = `
+          <div class="rel-item-img" style="position:relative;">
+            ${badgeHtml}
+            <img src="${p.img}" alt="${title}">
+          </div>
+          <div class="rel-title" data-ja="${p.titleJa}" data-en="${p.titleEn}">${title}</div>
+          ${priceHtml}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function openProduct(id) {
+      currentHtmlProductId = id;
+      const product = productsData.find(p => p.id === id);
+      if(!product) return;
+      const isJa = document.documentElement.lang === 'ja';
+      
+      const titleEl = document.querySelector('.title');
+      titleEl.textContent = isJa ? product.titleJa : product.titleEn;
+      titleEl.setAttribute('data-ja', product.titleJa);
+      titleEl.setAttribute('data-en', product.titleEn);
+      
+      const catEl = document.querySelector('.category');
+      catEl.textContent = isJa ? product.catJa : product.catEn;
+      catEl.setAttribute('data-ja', product.catJa);
+      catEl.setAttribute('data-en', product.catEn);
+      
+      const priceStr = product.oldPrice 
+        ? `<span style="color:#ef4444;">${product.price}</span> <span style="font-size:1rem;color:#94a3b8;text-decoration:line-through;margin-left:10px;font-weight:400;">${product.oldPrice}</span>`
+        : product.price;
+      document.querySelector('.price').innerHTML = priceStr;
+      
+      const descEl = document.querySelector('.description');
+      descEl.textContent = isJa ? product.descJa : product.descEn;
+      descEl.setAttribute('data-ja', product.descJa);
+      descEl.setAttribute('data-en', product.descEn);
+      
+      const galleryImgs = document.querySelectorAll('.gallery-img img');
+      if(galleryImgs.length === 3) {
+        galleryImgs[0].src = product.gallery[0] || product.img;
+        galleryImgs[1].src = product.gallery[1] || product.img;
+        galleryImgs[2].src = product.gallery[2] || product.img;
+      }
+      
+      const featuresUl = document.getElementById('productFeaturesList');
+      if(featuresUl) {
+        const features = isJa ? product.featuresJa : product.featuresEn;
+        featuresUl.innerHTML = '';
+        features.forEach((feat, index) => {
+          const li = document.createElement('li');
+          li.textContent = feat;
+          li.setAttribute('data-en', product.featuresEn[index]);
+          li.setAttribute('data-ja', product.featuresJa[index]);
+          featuresUl.appendChild(li);
+        });
+      }
+      
+      renderProductCards('related-grid', id);
+      
+      document.getElementById('homeView').classList.remove('active');
+      document.getElementById('detailView').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      if(typeof updateLanguage === 'function') setTimeout(updateLanguage, 50);
+    }
+
+    function goHome() {
+      document.getElementById('detailView').classList.remove('active');
+      document.getElementById('homeView').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProductCards('newArrivalsGrid', ['parka', 'trainer', 'bag', 'cap']);
+      renderProductCards('bestSellersGrid', ['wallet', 'tshirt', 'crewneck', 'pant']);
+      renderProductCards('mainShopGrid');
+    });
+
+    let currentHtmlProductId = 'parka';
+    
+    // Size Selector
+    const curSizeDisplay = document.getElementById('curSizeDisp');
+    let currentSize = 'M';
+    document.querySelectorAll('.size-btn').forEach(b => {
+      b.addEventListener('click', e => {
+        document.querySelectorAll('.size-btn').forEach(x => x.classList.remove('active'));
+        e.target.classList.add('active'); 
+        currentSize = e.target.textContent;
+        curSizeDisplay.textContent = currentSize;
+      });
+    });
+
+    // Cart Logic
+    let cart = [];
+    
+    function parsePrice(str) {
+      if(!str) return 0;
+      return parseInt(str.replace(/[^0-9]/g, ''), 10);
+    }
+
+    function formatPrice(num) {
+      return '¥ ' + num.toLocaleString();
+    }
+
+    function updateCartUI() {
+      const isJa = document.documentElement.lang === 'ja';
+      document.getElementById('cartCount').textContent = cart.length;
+      
+      const container = document.getElementById('cartItemsContainer');
+      const checkoutList = document.getElementById('checkoutItemsList');
+      container.innerHTML = '';
+      checkoutList.innerHTML = '';
+      
+      let total = 0;
+      
+      if(cart.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 2rem 0; color: var(--ec-muted);" data-ja="カートは空です" data-en="Your bag is empty.">Your bag is empty.</div>`;
+      } else {
+        cart.forEach((item, index) => {
+          total += parsePrice(item.price);
+          const title = isJa ? item.titleJa : item.titleEn;
+          
+          container.innerHTML += `
+            <div style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem; position: relative; border-bottom: 1px solid var(--ec-border); padding-bottom: 1rem;">
+              <img src="${item.img}" style="width:60px; height:60px; border-radius:6px; object-fit:cover;" alt="">
+              <div style="flex-grow: 1;">
+                <div style="font-weight:600; font-size:0.95rem;" data-ja="${item.titleJa}" data-en="${item.titleEn}">${title}</div>
+                <div style="color:var(--ec-muted); font-size:0.85rem;"><span data-ja="サイズ: " data-en="Size: ">Size: </span>${item.size} <span style="margin-left:10px;">${item.price}</span></div>
+              </div>
+              <button onclick="removeFromCart(${index})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:1.5rem;padding:0 0.5rem;" title="Remove">&times;</button>
+            </div>
+          `;
+          
+          checkoutList.innerHTML += `
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.8rem; font-weight:600; font-size:0.9rem;">
+              <span data-ja="${item.titleJa} (サイズ: ${item.size})" data-en="${item.titleEn} (Size: ${item.size})">${title} (${item.size})</span><span>${item.price}</span>
+            </div>
+          `;
+        });
+      }
+      
+      const totalStr = formatPrice(total);
+      document.getElementById('cartSubtotal').textContent = totalStr;
+      document.getElementById('checkoutTotal').textContent = totalStr;
+      
+      if(typeof updateLanguage === 'function') setTimeout(updateLanguage, 50);
+    }
+    
+    window.removeFromCart = function(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+      if(cart.length === 0) {
+        setTimeout(() => document.getElementById('cartModal').classList.remove('show'), 1500);
+      }
+    };
+
+    let autoCloseTimer;
+    document.getElementById('addBtn').addEventListener('click', function() {
+      const product = productsData.find(p => p.id === currentHtmlProductId);
+      if(!product) return;
+      
+      if(this.textContent === 'Added' || this.textContent === '追加しました') return;
+      const originalText = this.innerHTML;
+      this.textContent = 'Adding...';
+      this.style.opacity = '0.7';
+      
+      setTimeout(() => {
+        const isJa = document.documentElement.lang === 'ja';
+        this.innerHTML = isJa ? '追加しました' : 'Added'; 
+        this.style.opacity = '1';
+        this.style.background = '#10b981';
+        this.style.borderColor = '#10b981';
+        
+        cart.push({ ...product, size: currentSize });
+        updateCartUI();
+        
+        document.getElementById('cartModal').classList.add('show');
+        
+        if(autoCloseTimer) clearTimeout(autoCloseTimer);
+        autoCloseTimer = setTimeout(() => {
+          this.innerHTML = originalText; 
+          this.style.background = 'var(--ec-text)';
+          this.style.borderColor = 'var(--ec-text)';
+        }, 3000); 
+      }, 500);
+    });
+
+    // Cart Modal Controls
+    document.getElementById('closeCartBtn').addEventListener('click', () => {
+      document.getElementById('cartModal').classList.remove('show');
+    });
+    document.getElementById('openCartBtn').addEventListener('click', () => {
+      updateCartUI();
+      document.getElementById('cartModal').classList.add('show');
+    });
+    
+    // Search Overlay Logic
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    
+    document.getElementById('openSearchBtn').addEventListener('click', () => {
+      searchOverlay.classList.add('active');
+      setTimeout(() => searchInput.focus(), 100);
+    });
+    document.getElementById('closeSearchBtn').addEventListener('click', () => {
+      searchOverlay.classList.remove('active');
+      searchInput.value = '';
+      searchResults.classList.remove('show');
+    });
+    
+    searchInput.addEventListener('input', (e) => {
+      const val = e.target.value.trim().toLowerCase();
+      if(val.length > 1) {
+        searchResults.innerHTML = `
+          <div class="result-card" onclick="openProduct('parka'); document.getElementById('closeSearchBtn').click();">
+            <img src="img/parka-front.png" class="result-img" alt="">
+            <div>
+              <div style="font-weight:600; font-size:1.1rem; color:var(--ec-text);">Tech-Wool Minimalist Parka</div>
+              <div style="color:var(--ec-muted); font-size:0.9rem;">¥ 48,000</div>
+            </div>
+          </div>
+          <div class="result-card" onclick="openProduct('crewneck'); document.getElementById('closeSearchBtn').click();">
+            <img src="img/merino-crewneck.png" class="result-img" alt="">
+            <div>
+              <div style="font-weight:600; font-size:1.1rem; color:var(--ec-text);">Merino Crewneck</div>
+              <div style="color:var(--ec-muted); font-size:0.9rem;">¥ 18,000</div>
+            </div>
+          </div>
+        `;
+        searchResults.classList.add('show');
+      } else {
+        searchResults.classList.remove('show');
+      }
+    });
+
+    // Checkout Flow Logic
+    const checkoutOverlay = document.getElementById('checkoutOverlay');
+    const payBtn = document.getElementById('payBtn');
+    
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      if(cart.length === 0) {
+        alert(document.documentElement.lang === 'ja' ? 'カートが空です' : 'Cart is empty');
+        return;
+      }
+      document.getElementById('cartModal').classList.remove('show');
+      checkoutOverlay.classList.add('active');
+    });
+    
+    document.getElementById('closeCheckoutBtn').addEventListener('click', () => {
+      checkoutOverlay.classList.remove('active');
+      if(cart.length > 0) document.getElementById('cartModal').classList.add('show');
+    });
+    
+    payBtn.addEventListener('click', () => {
+      if(payBtn.classList.contains('processing')) return;
+      payBtn.classList.add('processing');
+      
+      payBtn.innerHTML = '<div class="pay-spinner" style="display:block;"></div><span>Processing...</span>';
+      payBtn.style.opacity = '0.8';
+      
+      setTimeout(() => {
+        payBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span>Payment Successful</span>';
+        payBtn.style.background = '#10b981';
+        payBtn.style.opacity = '1';
+        
+        setTimeout(() => {
+          checkoutOverlay.classList.remove('active');
+          cart = [];
+          updateCartUI();
+          setTimeout(() => {
+            payBtn.innerHTML = '<span id="payBtnText">Pay with Apple Pay</span>';
+            payBtn.style.background = '#000';
+            payBtn.classList.remove('processing');
+          }, 500);
+        }, 2000);
+      }, 1500);
+    });
+
+    updateCartUI();
+
+    // Footer Logic
+    function goShop(e) {
+      if(e) e.preventDefault();
+      goHome();
+      setTimeout(() => {
+        document.querySelector('.shop-container').scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
+    function alertDemo(e) {
+      if(e) e.preventDefault();
+      const isJa = document.documentElement.lang === 'ja';
+      alert(isJa ? 'このリンクはデモ用のため機能しません。' : 'This link is for demonstration purposes only.');
+    }
+
+    function subscribeNl(e) {
+      e.preventDefault();
+      const email = document.getElementById('nlEmail').value;
+      if(email) {
+        document.getElementById('nlBtn').innerHTML = '<div style="width:16px;height:16px;border:2px solid;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>';
+        setTimeout(() => {
+          document.getElementById('nlForm').style.display = 'none';
+          document.getElementById('nlSuccess').style.display = 'block';
+        }, 1500);
+      }
+    }
+  </script>
+</body>
+</html>

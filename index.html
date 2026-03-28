@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T.N | Creative Developer</title>
+  <meta name="description" content="T.Nのポートフォリオサイト。Webデザイン、フロントエンド実装のデモをご紹介します。">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+
+  <!-- Google Fonts: Outfit for headings, Inter for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="no-scroll">
+  <!-- Global Preloader -->
+  <div id="global-loader">
+    <div class="loader-logo">T.N<span>.</span></div>
+    <div class="loader-bar-bg">
+      <div class="loader-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- SVG Gradient Definition for Icons -->
+  <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+    <linearGradient id="icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" /> <!-- primary -->
+      <stop offset="100%" stop-color="#ec4899" /> <!-- secondary -->
+    </linearGradient>
+  </svg>
+
+  <!-- Page Scroll Progress Indicator -->
+  <div class="scroll-indicator">
+    <div class="scroll-line js-scroll-progress"></div>
+  </div>
+
+  <div class="background-effects">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <header class="header js-header">
+    <div class="header__inner">
+      <a href="#" class="header__logo">T.N<span class="dot">.</span></a>
+      <nav class="header__nav">
+        <ul class="nav__list">
+          <li><a href="#about" class="nav__link">About</a></li>
+          <li><a href="#skill" class="nav__link">Skills</a></li>
+          <li><a href="#works" class="nav__link">Works</a></li>
+          <li><a href="#contact" class="nav__btn">Contact Me</a></li>
+        </ul>
+      </nav>
+      <!-- Language Toggle -->
+      <div class="lang-toggle">
+        <button class="lang-btn is-active" data-lang="ja">JP</button>
+        <span class="lang-divider">/</span>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <!-- Mobile Menu Button -->
+      <button class="menu-btn js-menu-btn" aria-label="Menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <div class="hero__inner container">
+        <div class="hero__content js-fade-up">
+          <p class="hero__subtitle">Creative Frontend Developer</p>
+          <h1 class="hero__title">
+            Crafting <br>
+            <span class="gradient-text">Digital</span> <br>
+            Experiences.
+          </h1>
+          <p class="hero__text" data-i18n="hero_text">
+            モダンな技術と洗練されたデザインで、<br>
+            ユーザーの心を動かすWebサイトを構築します。
+          </p>
+          <div class="hero__actions">
+            <a href="#about" class="btn btn--secondary">About Me</a>
+            <a href="#works" class="btn btn--primary">View Projects</a>
+          </div>
+        </div>
+        <div class="hero__visual js-fade-up" style="transition-delay: 0.2s;">
+          <div class="glass-card hero__card">
+            <figure class="card__code-mockup" style="margin: 0;">
+              <figcaption class="mockup-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </figcaption>
+              <pre><code>const createMagic = () => {
+  return new Promise(resolve => {
+    design.blend(code);
+    resolve("Amazing User Experience");
+  });
+};
+createMagic().then(launch);</code></pre>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Sphere Artifact -->
+    <section class="sphere-section js-fade-up">
+      <div class="container section-header" style="padding-top: 4rem; margin-bottom: 0;">
+        <h2 class="section-title">Interactive <span class="gradient-text">Sphere</span></h2>
+        <p class="section-subtitle" data-i18n="sphere_subtitle">Hover over the sphere to interact with mathematics and
+          code.</p>
+      </div>
+      <div class="container sphere-container">
+        <!-- Real-time Status Overlay -->
+        <div id="sphere-hud" class="sphere-hud glass-panel">
+          <div class="hud-title">SYSTEM STATUS</div>
+          <div class="hud-item"><span class="hud-label">PATTERN:</span> <span id="hud-pattern"
+              class="cyan">NORMAL</span></div>
+          <div class="hud-item"><span class="hud-label">PARTICLES:</span> <span id="hud-particles" class="pink">0</span>
+          </div>
+          <input type="range" id="particle-slider" class="hud-slider" min="100" max="2500" step="50" value="800">
+          <div class="hud-item"><span class="hud-label">ROT_X:</span> <span id="hud-rotx">0.000</span></div>
+          <div class="hud-item"><span class="hud-label">ROT_Y:</span> <span id="hud-roty">0.000</span></div>
+          <div class="hud-item"><span class="hud-label">MORPH:</span> <span id="hud-morph">0%</span></div>
+          <div class="hud-item"><span class="hud-label">TIME_STEP:</span> <span id="hud-time">0.000</span></div>
+          <div class="hud-item"><span class="hud-label">ROT_VELOCITY:</span> <span id="hud-vel">2.00</span></div>
+          <div class="hud-item"><span class="hud-label">BASE_RADIUS:</span> <span id="hud-radius">250px</span></div>
+        </div>
+        <canvas id="sphere-canvas"></canvas>
+        <figure id="sphere-code-overlay" class="sphere-code-overlay glass-panel" style="margin: 0;">
+          <figcaption class="mockup-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="code-title" id="sphere-code-title">pattern.js</span>
+          </figcaption>
+          <pre><code id="sphere-code-content">// Hover the sphere to reveal the code</code></pre>
+        </figure>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about section" id="about">
+      <div class="container">
+        <h2 class="section-title js-fade-up">About <span class="gradient-text">Me</span></h2>
+        <div class="about__grid">
+          <figure class="about__image-wrapper js-fade-up" style="margin: 0;">
+            <div class="about__image-box glass-panel">
+              <canvas id="about-canvas" class="about-artifact-canvas"></canvas>
+            </div>
+          </figure>
+          <div class="about__content js-fade-up" style="transition-delay: 0.2s;">
+            <h3 class="about__heading" data-i18n="about_heading">デザインとコードの架け橋</h3>
+            <p class="about__desc" data-i18n="about_desc">
+              ユーザー目線に立ったUI/UXデザインを基盤にし、パフォ－マンスを意識したモダンなフロントエンド実装を得意としています。細部へのこだわり（マイクロインタラクションやタイポグラフィ）が、プロダクトの質を大きく左右すると信じています。
+            </p>
+            <div class="stats-grid">
+              <div class="stat-item glass-panel">
+                <span class="stat-num" style="font-size: 1.8rem;">Experience</span>
+                <span class="stat-label">Brand & User<br>Engagement</span>
+              </div>
+              <div class="stat-item glass-panel">
+                <span class="stat-num" style="font-size: 1.8rem;">Smooth</span>
+                <span class="stat-label">Stress-Free<br>Interactions</span>
+              </div>
+              <div class="stat-item glass-panel">
+                <span class="stat-num" style="font-size: 1.8rem;">Quality</span>
+                <span class="stat-label">Detail-Oriented<br>Creation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="skill section" id="skill">
+      <div class="container">
+        <h2 class="section-title js-fade-up">My <span class="gradient-text">Expertise</span></h2>
+        <div class="skill__grid">
+          <article class="skill-card glass-panel js-fade-up">
+            <div class="skill-card__icon">
+              <svg viewBox="0 0 24 24" class="custom-icon">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </div>
+            <h3 class="skill-card__title" data-i18n="skill_1_title">Scalable Web Creation</h3>
+            <p class="skill-card__desc" data-i18n="skill_1_desc">
+              最新テクノロジーを活用し、スマートフォンからPCまであらゆる環境で高速かつ安定して動作する、ビジネスの基盤となるWebサイト・アプリケーションを提供します。</p>
+          </article>
+          <article class="skill-card glass-panel js-fade-up" style="transition-delay: 0.1s;">
+            <div class="skill-card__icon">
+              <svg viewBox="0 0 24 24" class="custom-icon">
+                <circle cx="13.5" cy="6.5" r=".5" fill="url(#icon-grad)" stroke="none" />
+                <circle cx="17.5" cy="10.5" r=".5" fill="url(#icon-grad)" stroke="none" />
+                <circle cx="8.5" cy="7.5" r=".5" fill="url(#icon-grad)" stroke="none" />
+                <circle cx="6.5" cy="12.5" r=".5" fill="url(#icon-grad)" stroke="none" />
+                <path
+                  d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+              </svg>
+            </div>
+            <h3 class="skill-card__title" data-i18n="skill_2_title">Immersive Digital Experience</h3>
+            <p class="skill-card__desc" data-i18n="skill_2_desc">
+              洗練されたデザイン美学と滑らかなアニメーションを融合。ただ情報を伝えるだけでなく、ユーザーの記憶に残り、ブランドのファンを生み出すリッチなデジタル体験を創出します。</p>
+          </article>
+          <article class="skill-card glass-panel js-fade-up" style="transition-delay: 0.2s;">
+            <div class="skill-card__icon">
+              <svg viewBox="0 0 24 24" class="custom-icon">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+            </div>
+            <h3 class="skill-card__title" data-i18n="skill_3_title">User-Centric Performance</h3>
+            <p class="skill-card__desc" data-i18n="skill_3_desc">
+              離脱率を下げる表示速度の最適化（SEO）はもちろん、誰もが迷わず目的を達成できるアクセシビリティ（a11y）にも配慮。ビジネス成果に直結する高品質な設計を行います。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Works Section -->
+    <section class="works section" id="works">
+      <div class="container">
+        <div class="section-header js-fade-up">
+          <h2 class="section-title">Sample <span class="gradient-text">Works</span></h2>
+          <p class="section-subtitle" data-i18n="featured_subtitle">最近手がけたプロジェクトの一部をご紹介します。</p>
+        </div>
+
+
+        <div class="works__slider-wrapper js-fade-up">
+          <div class="works__slider js-works-slider">
+            <!-- Work Card 1 -->
+            <article class="work-card glass-panel">
+              <figure class="work-card__img-wrapper" style="margin: 0;">
+                <img src="img/work-1.png" alt="SaaS Dashboard UI" class="placeholder-img">
+              </figure>
+              <div class="work-card__content">
+                <span class="work-card__category">SaaS Dashboard / Vue.js</span>
+                <h3 class="work-card__title" data-i18n="work1_title">[]BtoB向け データ分析ダッシュボード</h3>
+                <p class="work-card__desc" data-i18n="work1_desc">
+                  エンタープライズ向けの洗練されたUIレイアウト設計。複雑なデータを直感的に可視化し、業務効率化を支援する管理画面。</p>
+                <a href="work-1.html" class="work-card__link">View Sample <span>→</span></a>
+              </div>
+            </article>
+
+            <!-- Work Card 2 -->
+            <article class="work-card glass-panel">
+              <figure class="work-card__img-wrapper" style="margin: 0;">
+                <img src="img/work-2.png" alt="E-commerce Store UI" class="placeholder-img">
+              </figure>
+              <div class="work-card__content">
+                <span class="work-card__category">EC Application / React</span>
+                <h3 class="work-card__title" data-i18n="work2_title">モダンアパレルECプラットフォーム</h3>
+                <p class="work-card__desc" data-i18n="work2_desc">ヘッドレスコマース構成によるUIの完全カスタマイズ。シームレスな商品検索と決済フローの実現。</p>
+                <a href="work-2.html" class="work-card__link">View Sample <span>→</span></a>
+              </div>
+            </article>
+
+            <!-- Work Card 3 -->
+            <article class="work-card glass-panel">
+              <figure class="work-card__img-wrapper" style="margin: 0;">
+                <img src="img/work-3.png" alt="Creative Agency Portfolio UI" class="placeholder-img">
+              </figure>
+              <div class="work-card__content">
+                <span class="work-card__category">Portfolio / WebGL & GSAP</span>
+                <h3 class="work-card__title" data-i18n="work3_title">クリエイティブスタジオ 公式サイト</h3>
+                <p class="work-card__desc" data-i18n="work3_desc">
+                  エッジの効いたタイポグラフィとブルータリズムを取り入れたデザイン。ブランドの独自性を強調する没入感のある表現。</p>
+                <a href="work-3.html" class="work-card__link">View Sample <span>→</span></a>
+              </div>
+            </article>
+
+            <!-- Work Card 4 -->
+            <article class="work-card glass-panel">
+              <figure class="work-card__img-wrapper" style="margin: 0;">
+                <img src="img/work-4.png" alt="Playful App Landing Page UI" class="placeholder-img">
+              </figure>
+              <div class="work-card__content">
+                <span class="work-card__category">LP / React & Tailwind</span>
+                <h3 class="work-card__title" data-i18n="work4_title">メッセージングアプリ LP開発</h3>
+                <p class="work-card__desc" data-i18n="work4_desc">
+                  ポップで親しみやすい世界観を3Dイラストを用いて表現。スクロール連動のマイクロインタラクションによる魅力的なUI構成。</p>
+                <a href="work-4.html" class="work-card__link">View Sample <span>→</span></a>
+              </div>
+            </article>
+
+            <!-- Work Card 5 -->
+            <article class="work-card glass-panel">
+              <figure class="work-card__img-wrapper" style="margin: 0;">
+                <img src="img/work-5.png" alt="Corporate Consulting Website UI" class="placeholder-img">
+              </figure>
+              <div class="work-card__content">
+                <span class="work-card__category">Corporate Site / Astro JS</span>
+                <h3 class="work-card__title" data-i18n="work5_title">総合コンサルティングファーム サイト</h3>
+                <p class="work-card__desc" data-i18n="work5_desc">
+                  信頼感と重厚感を重視したBtoB向け最新コーポレートデザイン。堅牢な情報アーキテクチャと高速なUX体験を両立。</p>
+                <a href="work-5.html" class="work-card__link">View Sample <span>→</span></a>
+              </div>
+            </article>
+
+            <!-- Work Card 6 -->
+            <article class="work-card glass-panel">
+              <figure class="work-card__img-wrapper" style="margin: 0;">
+                <img src="img/work-6.png" alt="Luxury Real Estate Platform UI" class="placeholder-img">
+              </figure>
+              <div class="work-card__content">
+                <span class="work-card__category">Web App / Next.js & Supabase</span>
+                <h3 class="work-card__title" data-i18n="work6_title">高級不動産ポータルプラットフォーム</h3>
+                <p class="work-card__desc" data-i18n="work6_desc">
+                  富裕層向け不動産の検索・閲覧アプリケーション。高品質な画像表示と、シームレスでモダンな検索フィルター機能の実装。</p>
+                <a href="work-6.html" class="work-card__link">View Sample <span>→</span></a>
+              </div>
+            </article>
+          </div>
+
+          <!-- Slider Controls -->
+          <div class="works__controls">
+            <button class="slider-btn js-slider-prev" aria-label="Previous work">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <button class="slider-btn js-slider-next" aria-label="Next work">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact section" id="contact">
+      <div class="container contact__inner glass-panel js-fade-up">
+        <h2 class="contact__title">Let's Work <span class="gradient-text">Together</span></h2>
+        <p class="contact__text" data-i18n="contact_text">
+          新しいプロジェクトのご相談、協業のお誘いなど、お気軽にご連絡ください。<br>
+          素晴らしいプロダクトを一緒に作り上げましょう。
+        </p>
+        <!-- Custom Google Form Integration -->
+        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"
+          onload="if(submitted){ document.getElementById('gform').style.display='none'; document.getElementById('gform-success').style.display='flex'; }"></iframe>
+
+        <form
+          action="https://docs.google.com/forms/d/e/1FAIpQLSeqLk5O_CYFqDQ8PG1h5RftP1N30glxIxbQunLndR7e6M3-jA/formResponse"
+          method="POST" target="hidden_iframe" id="gform" class="contact-form" style="margin-top: 3rem;"
+          onsubmit="submitted=true;">
+
+          <div class="form-group">
+            <label><span data-ja="お名前 (Name)" data-en="Name">お名前 (Name)</span> <span
+                style="color:var(--accent-secondary)">*</span></label>
+            <input type="text" name="entry.818163919" class="form-control" placeholder="例: 山田太郎"
+              data-ja-placeholder="例: 山田太郎" data-en-placeholder="e.g. John Doe" required>
+          </div>
+
+          <div class="form-group">
+            <label><span data-ja="貴社名・屋号 (Company)" data-en="Company Name">貴社名・屋号 (Company)</span></label>
+            <input type="text" name="entry.785307947" class="form-control" placeholder="例：株式会社サンプル ※個人の場合は「個人」と記載"
+              data-ja-placeholder="例：株式会社サンプル ※個人の場合は「個人」と記載" data-en-placeholder="e.g. Sample Inc. (or 'Individual')">
+          </div>
+
+          <div class="form-group">
+            <label><span data-ja="メールアドレス (Email)" data-en="Email Address">メールアドレス (Email)</span> <span
+                style="color:var(--accent-secondary)">*</span></label>
+            <input type="email" name="entry.138859228" class="form-control" placeholder="例: info@example.com"
+              data-ja-placeholder="例: info@example.com" data-en-placeholder="e.g. info@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label><span data-ja="お問い合わせの種類 (Inquiry Type)" data-en="Inquiry Type">お問い合わせの種類 (Inquiry Type)</span> <span
+                style="color:var(--accent-secondary)">*</span></label>
+            <select name="entry.721683791" class="form-control" required id="inquiry-type"
+              onchange="toggleFormSections()">
+              <option value="" disabled selected data-ja="選択してください" data-en="Please select">選択してください</option>
+              <option value="まずは相談・提案してほしい（カジュアル相談）" data-ja="まずは相談・提案してほしい（カジュアル相談）"
+                data-en="Casual Consultation / Proposal">まずは相談・提案してほしい（カジュアル相談）</option>
+              <option value="具体的な見積もり・開発を依頼したい（詳細依頼）" data-ja="具体的な見積もり・開発を依頼したい（詳細依頼）"
+                data-en="Request Specific Quote / Development">具体的な見積もり・開発を依頼したい（詳細依頼）</option>
+            </select>
+          </div>
+
+          <!-- Group A: カジュアル相談用 (Casual Consultation) -->
+          <div id="section-casual" style="display: none; animation: fadeIn 0.4s ease forwards;">
+            <div class="form-group">
+              <label><span data-ja="現在抱えているお悩み・課題は何ですか？ (Current Challenges)"
+                  data-en="What are your current challenges?">現在抱えているお悩み・課題は何ですか？ (Current Challenges)</span></label>
+              <textarea name="entry.300116091" class="form-control" rows="3"
+                placeholder="現在のWebサイトの不満点や課題などをご自由にご記入ください。" data-ja-placeholder="現在のWebサイトの不満点や課題などをご自由にご記入ください。"
+                data-en-placeholder="Please feel free to describe any dissatisfaction or issues with your current website."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label><span data-ja="Webサイトを通じて達成したい目標はありますか？ (Goals)"
+                  data-en="What goals do you want to achieve with the website?">Webサイトを通じて達成したい目標はありますか？
+                  (Goals)</span></label>
+              <textarea name="entry.1174932050" class="form-control" rows="3"
+                placeholder="例：問い合わせ数を増やしたい、採用の応募を増やしたい、ブランドイメージを向上させたい"
+                data-ja-placeholder="例：問い合わせ数を増やしたい、採用の応募を増やしたい、ブランドイメージを向上させたい"
+                data-en-placeholder="e.g. Increase in inquiries, boost recruitment applications, improve brand image"></textarea>
+            </div>
+          </div>
+
+          <!-- Group B: 具体的な見積もり・開発依頼用 (Project/Quote Request) -->
+          <div id="section-detail" style="display: none; animation: fadeIn 0.4s ease forwards;">
+            <div class="form-group">
+              <label><span data-ja="特に重視したいポイント（複数回答可） (Priorities)"
+                  data-en="Key Priorities (Multiple selections allowed)">特に重視したいポイント（複数回答可） (Priorities)</span></label>
+              <div class="checkbox-group">
+                <label class="check-label"><input type="checkbox" name="entry.1565692377"
+                    value="表示スピード・パフォーマンス最適化（Next.js等）"><span data-ja="表示スピード・パフォーマンス最適化（Next.js等）"
+                    data-en="Page Speed & Performance (Next.js, etc.)">表示スピード・パフォーマンス最適化（Next.js等）</span></label>
+                <label class="check-label"><input type="checkbox" name="entry.1565692377"
+                    value="誰にでも使いやすい設計（アクセシビリティ/a11y）"><span data-ja="誰にでも使いやすい設計（アクセシビリティ/a11y）"
+                    data-en="Accessible Design (a11y)">誰にでも使いやすい設計（アクセシビリティ/a11y）</span></label>
+                <label class="check-label"><input type="checkbox" name="entry.1565692377"
+                    value="SEO・Core Web Vitals対策"><span data-ja="SEO・Core Web Vitals対策"
+                    data-en="SEO & Core Web Vitals">SEO・Core Web Vitals対策</span></label>
+                <label class="check-label"><input type="checkbox" name="entry.1565692377"
+                    value="管理画面のカスタマイズ（運用コスト削減）"><span data-ja="管理画面のカスタマイズ（運用コスト削減）"
+                    data-en="CMS Customization (Reduce operational costs)">管理画面のカスタマイズ（運用コスト削減）</span></label>
+                <label class="check-label"><input type="checkbox" name="entry.1565692377" value="デザインの美しさ・独自性"><span
+                    data-ja="デザインの美しさ・独自性" data-en="Aesthetic & Unique Design">デザインの美しさ・独自性</span></label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label><span data-ja="デザインデータの有無 (Design Assets)" data-en="Design Assets Availability">デザインデータの有無 (Design
+                  Assets)</span></label>
+              <select name="entry.2138467035" class="form-control">
+                <option value="" disabled selected data-ja="選択してください" data-en="Please select">選択してください</option>
+                <option value="Figma / Adobe XDデータあり" data-ja="Figma / Adobe XDデータあり"
+                  data-en="Have Figma / Adobe XD data">Figma / Adobe XDデータあり</option>
+                <option value="デザインから依頼したい" data-ja="デザインから依頼したい" data-en="Want a design from scratch">デザインから依頼したい
+                </option>
+                <option value="ラフ案・参考資料のみあり" data-ja="ラフ案・参考資料のみあり" data-en="Only rough drafts / references">
+                  ラフ案・参考資料のみあり</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label><span data-ja="ご予算の目安 (Budget)" data-en="Estimated Budget">ご予算の目安 (Budget)</span></label>
+              <select name="entry.1628759802" class="form-control">
+                <option value="" disabled selected data-ja="選択してください" data-en="Please select">選択してください</option>
+                <option value="〜30万円" data-ja="〜30万円" data-en="~ 300,000 JPY">〜30万円</option>
+                <option value="30〜60万円" data-ja="30〜60万円" data-en="300,000 ~ 600,000 JPY">30〜60万円</option>
+                <option value="60〜100万円" data-ja="60〜100万円" data-en="600,000 ~ 1,000,000 JPY">60〜100万円</option>
+                <option value="100万円以上" data-ja="100万円以上" data-en="1,000,000+ JPY">100万円以上</option>
+                <option value="未定" data-ja="未定" data-en="Undecided">未定</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 共通用アイテム (Common Elements, initially hidden to guide flow) -->
+          <div id="section-common" style="display: none; animation: fadeIn 0.4s ease forwards;">
+            <div class="form-group">
+              <label><span data-ja="現在のWebサイトURL（あれば） (Current Website URL)"
+                  data-en="Current Website URL (If any)">現在のWebサイトURL（あれば） (Current Website URL)</span></label>
+              <input type="url" name="entry.1379219163" class="form-control" placeholder="https://..."
+                data-ja-placeholder="https://..." data-en-placeholder="https://...">
+            </div>
+
+            <div class="form-group">
+              <label><span data-ja="その他、補足事項やメッセージ (Additional Info)"
+                  data-en="Additional Info or Message">その他、補足事項やメッセージ (Additional Info)</span></label>
+              <textarea name="entry.507039611" class="form-control" rows="4"
+                placeholder="その他ご相談内容や希望納期などがございましたらご記入ください。" data-ja-placeholder="その他ご相談内容や希望納期などがございましたらご記入ください。"
+                data-en-placeholder="Please specify any other requests, desired timeline, etc."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--large submit-btn" data-ja="送信する"
+              data-en="Send Message">Send Message</button>
+          </div>
+        </form>
+
+        <div id="gform-success"
+          style="display:none; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-top: 2rem; padding: 3rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; animation: fadeUp 0.5s ease forwards;">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"
+            style="margin-bottom: 1.5rem;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <h3 style="color: #10b981; font-size: 1.8rem; margin-bottom: 1rem;" data-ja="送信完了" data-en="Message Sent">送信完了
+          </h3>
+          <p style="color: #e2e8f0; font-size: 1.1rem; line-height: 1.6;"
+            data-ja="お問い合わせありがとうございます。<br>内容を確認次第、折り返しご連絡いたします。"
+            data-en="Thank you for your message.<br>We will get back to you shortly.">
+            お問い合わせありがとうございます。<br>内容を確認次第、折り返しご連絡いたします。</p>
+        </div>
+        <script>
+          var submitted = false;
+          function toggleFormSections() {
+            const type = document.getElementById('inquiry-type').value;
+            const sectionCasual = document.getElementById('section-casual');
+            const sectionDetail = document.getElementById('section-detail');
+            const sectionCommon = document.getElementById('section-common');
+
+            // Reveal common section always, conditionally show others
+            if (type === 'まずは相談・提案してほしい（カジュアル相談）') {
+              sectionCasual.style.display = 'block';
+              sectionDetail.style.display = 'none';
+              sectionCommon.style.display = 'block';
+            } else if (type === '具体的な見積もり・開発を依頼したい（詳細依頼）') {
+              sectionCasual.style.display = 'none';
+              sectionDetail.style.display = 'block';
+              sectionCommon.style.display = 'block';
+            } else {
+              sectionCasual.style.display = 'none';
+              sectionDetail.style.display = 'none';
+              sectionCommon.style.display = 'none';
+            }
+          }
+        </script>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <a href="#" class="footer__logo">T.N<span>.</span></a>
+        <p class="footer__tagline">Creative Frontend Developer</p>
+      </div>
+      <nav class="footer__links" aria-label="Social Links">
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://x.com" target="_blank" rel="noopener noreferrer">X</a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </nav>
+    </div>
+    <div class="footer__bottom">
+      <p class="footer__copy"><small>&copy; 2026 T.N Portfolio. All rights reserved.</small></p>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript -->
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/sphere.js"></script>
+  <script src="js/about-artifact.js"></script>
+  <script>
+    // Global Preloader
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loader = document.getElementById('global-loader');
+        if (loader) {
+          loader.classList.add('hidden');
+          document.body.classList.remove('no-scroll');
+        }
+      }, 1400); // 1.4s minimum display for smooth loading animation
+    });
+  </script>
+</body>
+
+</html>

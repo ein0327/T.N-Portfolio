@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>B2B Data Analytics Dashboard | Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0d14; --surface: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08);
+      --primary: #2dd4bf; --text: #f8fafc; --muted: #94a3b8;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; font-family: 'Inter', sans-serif; }
+    
+    .sidebar { width: 260px; border-right: 1px solid var(--border); padding: 2rem; display: flex; flex-direction: column; gap: 2.5rem; background: rgba(11, 13, 20, 0.95); z-index: 10; transition: transform 0.3s; }
+    .logo { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; letter-spacing: 0.05em; background: linear-gradient(90deg, #2dd4bf, #ec4899); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2rem; }
+    .nav { display: flex; flex-direction: column; gap: 0.5rem; }
+    .nav-item { padding: 0.85rem 1.25rem; border-radius: 8px; color: var(--muted); font-weight: 500; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 1rem; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .nav-item.active { background: rgba(45, 212, 191, 0.1); color: var(--primary); border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; }
+    
+    .main { flex: 1; padding: 2.5rem 4rem; overflow-y: auto; overflow-x: hidden; width: 100%; box-sizing: border-box; }
+    .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; animation: fadeDown 0.6s ease; width: 100%; }
+    .header h1 { font-family: 'Outfit', sans-serif; font-size: clamp(1.8rem, 6vw, 2.5rem); margin: 0 0 0.5rem 0; font-weight: 600; line-height: 1.2; word-break: break-word; }
+    .header p { color: var(--muted); margin: 0; font-size: 0.95rem; }
+    
+    .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); animation: fadeUp 0.6s ease backwards; }
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    
+    .card-title { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+    .card-value { font-size: 2.5rem; font-weight: 600; font-family: 'Outfit', sans-serif; margin-bottom: 0.25rem; }
+    
+    .chart-card { grid-column: 1 / -1; animation-delay: 0.3s !important; padding: 2rem; }
+    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .chart-stage { height: 250px; width: 100%; display: flex; align-items: flex-end; justify-content: space-between; gap: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-top: 2rem; }
+    .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 0.5rem; position: relative; cursor: pointer; }
+    .bar { width: 100%; max-width: 40px; background: linear-gradient(180deg, #8b5cf6 0%, rgba(139, 92, 246, 0.1) 100%); border-radius: 6px 6px 0 0; transform-origin: bottom; animation: barGrow 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transition: all 0.3s; }
+    .bar-group:hover .bar { background: linear-gradient(180deg, #2dd4bf 0%, rgba(45, 212, 191, 0.2) 100%); box-shadow: 0 0 15px rgba(45,212,191,0.2); }
+    .x-label { font-size: 0.8rem; color: var(--muted); position: absolute; bottom: -30px; }
+    
+    /* Horizontal Bar Chart */
+    .hbar-container { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    .hbar-row { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; }
+    .hbar-label { width: 70px; color: var(--muted); text-align: right; font-weight: 500; letter-spacing: 0.05em; }
+    .hbar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .hbar-fill { height: 100%; border-radius: 3px; opacity: 0; animation: barGrowH 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: left; }
+    .hbar-val { width: 40px; font-weight: 600; font-family: 'Outfit', sans-serif; text-align: right; }
+    
+    /* Top Bar */
+    .top-bar { display: flex; justify-content: flex-end; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem; color: var(--muted); animation: fadeDown 0.6s ease; }
+    .search-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; color: #fff; display: flex; align-items: center; gap: 0.5rem; transition: border-color 0.3s; }
+    .search-box:focus-within { border-color: var(--primary); }
+    .search-box input { background: transparent; border: none; color: #fff; outline: none; font-family: inherit; }
+    .search-box input::placeholder { color: rgba(255,255,255,0.2); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #3b82f6); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(45,212,191,0.3); }
+
+    @keyframes barGrowH { 0% { transform: scaleX(0); opacity: 0; } 100% { transform: scaleX(1); opacity: 1; } }
+
+    /* Extra Content: Data Table */
+    .table-container { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; text-align: left; }
+    .table-container th { color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); padding: 1rem 0; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.8rem; }
+    .table-container td { padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); color: #e2e8f0; }
+    .table-container tr:hover td { background: rgba(255,255,255,0.02); }
+    .status-badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .status-done { background: rgba(45, 212, 191, 0.1); color: #2dd4bf; }
+    .status-pending { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
+    
+    @keyframes barGrow { 0% { transform: scaleY(0); opacity: 0; } 100% { transform: scaleY(1); opacity: 1; } }
+    @keyframes fadeUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeDown { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
+    
+    .return-btn { position: fixed; bottom: 2rem; right: 2rem; background: #fff; color: #0b0d14; padding: 0.8rem 1.5rem; border-radius: 30px; text-decoration: none; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; transition: transform 0.3s; }
+    .return-btn:hover { transform: translateY(-3px); }
+    
+    /* Responsive Queries */
+    .menu-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; z-index: 50; }
+    
+    @media (max-width: 900px) {
+      body { flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+      .sidebar { position: fixed; top: 0; left: -260px; height: 100vh; box-sizing: border-box; }
+      .sidebar.open { left: 0; }
+      .main { padding: 4.5rem 1.25rem 1.5rem 1.25rem; overflow-y: visible; margin-top: 0; width: 100%; overflow-x: hidden; box-sizing: border-box; }
+      .metrics-grid { grid-template-columns: minmax(0, 1fr); width: 100%; gap: 1.25rem; }
+      .card { padding: 1.25rem; max-width: 100%; box-sizing: border-box; overflow: hidden; grid-column: 1 / -1 !important; }
+      .chart-card { padding: 1.5rem 1.25rem !important; }
+      .header { align-items: flex-start; flex-direction: column; gap: 0.5rem; width: 100%; margin-bottom: 2rem; }
+      .header h1 { font-size: 1.5rem; word-break: break-word; line-height: 1.3; }
+      .top-bar { justify-content: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem; width: 100%; }
+      .search-box { width: 100%; }
+      .search-box input { width: 100%; }
+      .menu-toggle { display: block; position: fixed; top: 1rem; right: 1.25rem; left: auto; z-index: 100; background: rgba(11,13,20,0.85); backdrop-filter: blur(10px); padding: 8px 12px; border-radius: 8px; border:1px solid rgba(255,255,255,0.1); font-size: 0.95rem; }
+      .table-container { display: block; overflow-x: auto; white-space: nowrap; width: 100%; }
+      .chart-stage { height: 200px; padding-bottom: 2rem; }
+      .x-label { font-size: 0.7rem; bottom: -20px; }
+      .bar { max-width: 25px; }
+      .hbar-label { width: 60px; font-size: 0.75rem; }
+      .hbar-val { width: 35px; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menu</button>
+  <aside class="sidebar">
+    <div class="logo">METI<br><span style="color:#fff; font-size:1.1rem; font-weight:400; letter-spacing:0.2em;">ANALYTICS</span></div>
+    <nav class="nav">
+      <div class="nav-item active" data-ja="経済指標ダッシュボード" data-en="Economic Dashboard">経済指標ダッシュボード</div>
+      <div class="nav-item" onclick="alertDemo(event)" data-ja="生産・出荷・在庫" data-en="Production & Inventory">生産・出荷・在庫</div>
+      <div class="nav-item" onclick="alertDemo(event)" data-ja="商業・サービス業" data-en="Commerce & Services">商業・サービス業</div>
+      <div class="nav-item" onclick="alertDemo(event)" data-ja="データエクスポート" data-en="Data Export">データエクスポート</div>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="top-bar">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="データセットを検索..." id="demoSearch">
+      </div>
+      <div onclick="alertDemo(event)" style="cursor:pointer; position:relative; color: #e2e8f0; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='#e2e8f0'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span style="position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:#ec4899; border-radius:50%; box-shadow: 0 0 5px #ec4899;"></span>
+      </div>
+      <div class="avatar" onclick="alertDemo(event)" style="cursor:pointer;">GOV</div>
+    </div>
+    <header class="header">
+      <div>
+        <h1 data-ja="日本経済マクロ統合ボード" data-en="Japan Macro-Economy Board">日本経済マクロ統合ボード</h1>
+        <p data-ja="経済産業省 公開統計データに基づく主要指標のリアルタイム可視化" data-en="Real-time visualization of key indicators based on METI public statistics data">経済産業省 公開統計データに基づく主要指標のリアルタイム可視化</p>
+      </div>
+    </header>
+    <div class="metrics-grid">
+      <article class="card">
+        <div class="card-title"><span data-ja="鉱工業生産指数 (IIP)" data-en="Industrial Production (IIP)">鉱工業生産指数 (IIP)</span> <span style="color:#2dd4bf;font-weight:600;">+0.5%</span></div>
+        <div class="card-value">101.4</div>
+        <div style="font-size:0.8rem; color:var(--muted);" data-ja="2026年2月速報値 / 2020年=100" data-en="Feb 2026 Preliminary / 2020=100">2026年2月速報値 / 2020年=100</div>
+      </article>
+      <article class="card">
+        <div class="card-title"><span data-ja="小売業販売額" data-en="Retail Sales Value">小売業販売額</span> <span style="color:#2dd4bf;font-weight:600;">+2.1%</span></div>
+        <div class="card-value">13.4<span style="font-size:1.5rem;" data-ja="兆円" data-en="Tn ¥">兆円</span></div>
+        <div style="font-size:0.8rem; color:var(--muted);" data-ja="2026年2月速報値 / 前年同月比" data-en="Feb 2026 Preliminary / YoY">2026年2月速報値 / 前年同月比</div>
+      </article>
+      <article class="card">
+        <div class="card-title"><span data-ja="第3次産業活動指数" data-en="Tertiary Industry Index">第3次産業活動指数</span> <span style="color:#ec4899;font-weight:600;">-0.2%</span></div>
+        <div class="card-value">103.2</div>
+        <div style="font-size:0.8rem; color:var(--muted);" data-ja="2026年1月確報値 / 前月比" data-en="Jan 2026 Final / MoM">2026年1月確報値 / 前月比</div>
+      </article>
+      <article class="card chart-card" style="grid-column: span 2;">
+        <div class="chart-header">
+          <div class="card-title" style="margin:0; font-size:1rem; color:#fff;">鉱工業生産指数 推移 (過去6ヶ月)</div>
+        </div>
+        <figure class="chart-stage" style="margin: 0;">
+          <div class="bar-group"><div class="bar" style="height: 65%; animation-delay: 0.1s;"></div><div class="x-label">9月</div></div>
+          <div class="bar-group"><div class="bar" style="height: 63%; animation-delay: 0.15s;"></div><div class="x-label">10月</div></div>
+          <div class="bar-group"><div class="bar" style="height: 68%; animation-delay: 0.2s;"></div><div class="x-label">11月</div></div>
+          <div class="bar-group"><div class="bar" style="height: 75%; background: linear-gradient(180deg, #2dd4bf 0%, rgba(45, 212, 191, 0.1) 100%); animation-delay: 0.25s;"></div><div class="x-label" style="color:#2dd4bf;">12月</div></div>
+          <div class="bar-group"><div class="bar" style="height: 72%; animation-delay: 0.3s;"></div><div class="x-label">1月</div></div>
+          <div class="bar-group"><div class="bar" style="height: 80%; background: linear-gradient(180deg, #2dd4bf 0%, rgba(45, 212, 191, 0.1) 100%); animation-delay: 0.35s;"></div><div class="x-label" style="color:#2dd4bf;">2月</div></div>
+        </figure>
+      </article>
+      
+      <!-- Sector Breakdown Horizontal Bar Chart -->
+      <article class="card chart-card" style="grid-column: span 1; animation-delay: 0.35s !important; padding: 1.5rem 2rem;">
+        <div class="chart-header" style="margin-bottom: 0;">
+          <div class="card-title" style="margin:0; font-size:1rem; color:#fff;" data-ja="業種別 生産寄与度" data-en="Sector Contribution">業種別 生産寄与度</div>
+        </div>
+        <div class="hbar-container">
+          <div class="hbar-row">
+            <div class="hbar-label" data-ja="自動車" data-en="Auto">自動車</div>
+            <div class="hbar-track"><div class="hbar-fill" style="width: 85%; background: var(--primary); animation-delay: 0.4s;"></div></div>
+            <div class="hbar-val" style="color:var(--primary);">+3.2</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label" data-ja="電子部品" data-en="Electronics">電子部品</div>
+            <div class="hbar-track"><div class="hbar-fill" style="width: 65%; background: #60a5fa; animation-delay: 0.5s;"></div></div>
+            <div class="hbar-val" style="color:#60a5fa;">+1.8</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label" data-ja="化学工業" data-en="Chemicals">化学工業</div>
+            <div class="hbar-track"><div class="hbar-fill" style="width: 40%; background: #a78bfa; animation-delay: 0.6s;"></div></div>
+            <div class="hbar-val" style="color:#a78bfa;">+0.9</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label" data-ja="鉄鋼" data-en="Steel">鉄鋼</div>
+            <div class="hbar-track"><div class="hbar-fill" style="width: 25%; background: #ec4899; animation-delay: 0.7s;"></div></div>
+            <div class="hbar-val" style="color:#ec4899;">-0.5</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label" data-ja="機械" data-en="Machinery">機械</div>
+            <div class="hbar-track"><div class="hbar-fill" style="width: 50%; background: #fbbf24; animation-delay: 0.8s;"></div></div>
+            <div class="hbar-val" style="color:#fbbf24;">+1.1</div>
+          </div>
+        </div>
+      </article>
+      
+      <!-- New Data Table -->
+      <article class="card" style="grid-column: 1 / -1; animation-delay: 0.4s;">
+        <div class="card-title" style="color:#fff; font-size:1rem; margin-bottom: 1rem;" data-ja="最新の統計公表スケジュール" data-en="Latest Statistics Release Schedule">最新の統計公表スケジュール</div>
+        <table class="table-container">
+          <thead>
+            <tr><th data-ja="公表予定日" data-en="Release Date">公表予定日</th><th data-ja="統計調査名" data-en="Statistic Name">統計調査名</th><th data-ja="対象年月" data-en="Target Month">対象年月</th><th data-ja="ステータス" data-en="Status">ステータス</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2026/03/25</td><td data-ja="鉱工業指数 (生産・出荷・在庫)" data-en="Indices of Industrial Production">鉱工業指数 (生産・出荷・在庫)</td><td data-ja="2026年2月分 (速報)" data-en="Feb 2026 (Prelim)">2026年2月分 (速報)</td><td><span class="status-badge status-done" data-ja="公表済" data-en="Released">公表済</span></td></tr>
+            <tr><td>2026/03/24</td><td data-ja="商業動態統計" data-en="Current Survey of Commerce">商業動態統計</td><td data-ja="2026年2月分 (速報)" data-en="Feb 2026 (Prelim)">2026年2月分 (速報)</td><td><span class="status-badge status-done" data-ja="公表済" data-en="Released">公表済</span></td></tr>
+            <tr><td>2026/03/28</td><td data-ja="特定サービス産業動態統計" data-en="Selected Service Industries">特定サービス産業動態統計</td><td data-ja="2026年1月分 (確報)" data-en="Jan 2026 (Final)">2026年1月分 (確報)</td><td><span class="status-badge status-pending" data-ja="次回予定" data-en="Upcoming">次回予定</span></td></tr>
+            <tr><td>2026/03/31</td><td data-ja="第３次産業活動指数" data-en="Tertiary Industry Activity Index">第３次産業活動指数</td><td data-ja="2026年2月分 (速報)" data-en="Feb 2026 (Prelim)">2026年2月分 (速報)</td><td><span class="status-badge status-pending" data-ja="次回予定" data-en="Upcoming">次回予定</span></td></tr>
+          </tbody>
+        </table>
+      </article>
+      <div style="height: 50px; grid-column: 1/-1;"></div>
+    </div>
+  </main>
+
+  <a href="index.html#works" class="return-btn" data-ja="← ポートフォリオに戻る" data-en="← Back to Portfolio">← Back to Portfolio</a>
+  
+  <div class="demo-lang-switch" style="position:fixed; bottom:2rem; left:2rem; z-index:100; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:0.5rem; border-radius:30px; display:flex; gap:0.5rem; border:1px solid rgba(255,255,255,0.1);">
+    <button class="lang-btn" data-lang="en" style="background:transparent; border:none; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600; padding:0.4rem 0.8rem; border-radius:20px; transition:all 0.3s;">EN</button>
+    <button class="lang-btn" data-lang="ja" style="background:transparent; border:none; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600; padding:0.4rem 0.8rem; border-radius:20px; transition:all 0.3s;">JA</button>
+  </div>
+  <style>
+    .demo-lang-switch .lang-btn.is-active { background: #fff !important; color: #000 !important; }
+  </style>
+  <script>
+    const searchInput = document.getElementById('demoSearch');
+    const langObserver2 = new MutationObserver(() => {
+      const isJa = document.documentElement.lang === 'ja';
+      if(searchInput) searchInput.placeholder = isJa ? "データセットを検索..." : "Search datasets...";
+    });
+    langObserver2.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+    
+    function alertDemo(e) {
+      if(e) e.preventDefault();
+      const isJa = document.documentElement.lang === 'ja';
+      alert(isJa ? 'この機能はデモ用のため選択できません。' : 'This feature is for demonstration purposes only.');
+    }
+  </script>
+  <script src="js/i18n.js"></script>
+</body>
+</html>

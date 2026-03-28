@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulting Firm Corporate Site | Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root { --c-bg: #f9f9f9; --c-text: #1a1a2e; --c-accent: #0b162c; --c-gold: #c89666; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--c-bg); color: var(--c-text); font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; overflow-x: hidden; }
+    
+    /* Preloader for High-Speed UX Simulation */
+    .loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--c-accent); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .loader.hidden { opacity: 0; pointer-events: none; transform: translateY(-50px); }
+    .loader-text { color: #fff; font-family: serif; font-size: 1.2rem; letter-spacing: 0.2em; margin-bottom: 1rem; animation: pulse 1s infinite alternate; }
+    .loader-line { width: 0; height: 1px; background: var(--c-gold); animation: loadLine 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
+    @keyframes loadLine { 0% { width: 0; } 100% { width: 150px; } }
+    @keyframes pulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+
+    /* Navigation & Mega Menu for Robust Architecture */
+    .nav { padding: 0 4rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); position: absolute; width: 100%; z-index: 100; box-sizing: border-box; }
+    .brand { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 0.1em; font-family: serif; padding: 2rem 0; }
+    .nav-links { display: flex; gap: 3rem; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #fff; list-style: none; margin: 0; padding: 0; }
+    .nav-item { position: relative; padding: 2rem 0; cursor: pointer; transition: color 0.3s; }
+    .nav-item:hover { color: var(--c-gold); }
+    
+    .mega-menu { position: absolute; top: 100%; right: -50px; left: auto; width: 600px; background: #fff; box-shadow: 0 30px 60px rgba(0,0,0,0.15); padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; opacity: 0; pointer-events: none; transform: translateY(15px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); color: var(--c-text); text-align: left; text-transform: none; letter-spacing: normal; z-index: 100; border-top: 3px solid var(--c-gold); }
+    .nav-item:hover .mega-menu { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .mega-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+    .mega-link { display: block; font-size: 1rem; font-weight: 600; color: var(--c-accent); padding: 0.5rem 0; text-decoration: none; transition: color 0.2s; }
+    .mega-link:hover { color: var(--c-gold); }
+    .mega-desc { font-size: 0.85rem; color: #666; font-weight: 400; margin-bottom: 1rem; line-height: 1.4; }
+    
+    /* Hero Section with Imposing Background */
+    .hero { min-height: 90vh; display: flex; align-items: center; padding: 0 4rem; position: relative; background: linear-gradient(rgba(11,22,44,0.85), rgba(11,22,44,0.95)), url('img/corporate-bg.png') center/cover no-repeat; color: #fff; }
+    .hero-content { max-width: 900px; position: relative; z-index: 10; opacity: 0; transform: translateY(30px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s; }
+    .hero-content.loaded { opacity: 1; transform: translateY(0); }
+    .hero-title { font-family: serif; font-size: clamp(3rem, 6vw, 5rem); line-height: 1.1; color: #fff; margin: 0 0 2rem 0; font-weight: 400; letter-spacing: 0.02em; }
+    .hero-desc { font-size: 1.2rem; color: #cbd5e1; margin-bottom: 3.5rem; max-width: 700px; line-height: 1.8; font-weight: 300; }
+    .btn { display: inline-block; padding: 1.2rem 3rem; background: var(--c-gold); color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; transition: background 0.3s, transform 0.3s; border: none; cursor: pointer; }
+    .btn:hover { background: #b08051; transform: translateY(-3px); }
+    
+    /* Info Architecture Grid */
+    .grid-wrapper { background: #fff; margin-top: -50px; position: relative; z-index: 20; box-shadow: 0 -20px 40px rgba(0,0,0,0.05); }
+    .grid-section { padding: 8rem 4rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; max-width: 1400px; margin: 0 auto; }
+    .card { padding: 3rem 2.5rem; background: #f8fafc; border-top: 3px solid transparent; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; transform: translateY(30px); }
+    .card.visible { opacity: 1; transform: translateY(0); }
+    .card:hover { border-color: var(--c-gold); transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); background: #fff; }
+    .card-num { color: var(--c-gold); font-family: serif; font-size: 1.5rem; margin-bottom: 1.5rem; font-style: italic; }
+    .card-title { font-family: serif; font-size: 1.8rem; color: var(--c-accent); margin-bottom: 1rem; line-height: 1.2; font-weight: 600; }
+    .card-desc { font-size: 1rem; color: #4a4a5a; }
+    
+    /* Vision Section */
+    .vision-section { padding: 10rem 4rem; background: var(--c-accent); color: #fff; text-align: center; position: relative; overflow: hidden; }
+    .vision-section::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(200,150,102,0.1) 0%, transparent 60%); pointer-events: none; }
+    .vision-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--c-gold); margin-bottom: 2rem; display: inline-block; font-weight: 600; }
+    .vision-statement { font-family: serif; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.3; max-width: 1000px; margin: 0 auto 3rem auto; font-weight: 300; position: relative; z-index: 10; letter-spacing: 0.02em; }
+    .vision-statement strong { font-weight: 500; color: var(--c-gold); font-style: italic; }
+    .vision-author { font-size: 0.95rem; color: rgba(255,255,255,0.7); font-weight: 300; letter-spacing: 0.05em; text-transform: uppercase; position: relative; z-index: 10; }
+    
+    /* Impact Numbers */
+    .impact-section { background: var(--c-accent); color: #fff; padding: 6rem 4rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); }
+    .impact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+    .i-item { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    .i-item.visible { opacity: 1; transform: translateY(0); }
+    .i-num { font-family: serif; font-size: 4rem; color: var(--c-gold); margin-bottom: 0.5rem; line-height: 1; font-weight: 400; }
+    .i-label { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); }
+    
+    .return-btn { position: fixed; bottom: 2rem; left: 2rem; background: var(--c-accent); color: #fff; padding: 0.8rem 1.5rem; border-radius: 30px; text-decoration: none; font-size: 0.9rem; transition: transform 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 100; letter-spacing: 0.05em; font-weight: 600; border: 1px solid rgba(255,255,255,0.2); }
+    .return-btn:hover { background: var(--c-gold); transform: translateY(-3px); }
+    
+    /* Philosophy Section */
+    .philosophy { padding: 8rem 4rem; display: flex; align-items: center; gap: 4rem; max-width: 1400px; margin: 0 auto; }
+    .phil-image { flex: 1; height: 500px; background: url('img/meridian-office.png') center/cover; opacity: 0; transform: translateX(-30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .phil-image.visible { opacity: 1; transform: translateX(0); }
+    .phil-text { flex: 1; opacity: 0; transform: translateX(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s; }
+    .phil-text.visible { opacity: 1; transform: translateX(0); }
+    .phil-title { font-family: serif; font-size: 2.5rem; color: var(--c-accent); margin-bottom: 2rem; line-height: 1.2; }
+    .phil-desc { font-size: 1.1rem; color: #555; margin-bottom: 1.5rem; line-height: 1.8; }
+    
+    /* Insights Section */
+    .insights { padding: 8rem 4rem; background: #f0f2f5; }
+    .insights-header { max-width: 1400px; margin: 0 auto 4rem auto; display: flex; justify-content: space-between; align-items: flex-end; }
+    .insights-title { font-family: serif; font-size: 2.5rem; color: var(--c-accent); margin: 0; }
+    .insights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; max-width: 1400px; margin: 0 auto; }
+    .insight-card { background: #fff; text-decoration: none; color: var(--c-text); display: block; transition: transform 0.3s, box-shadow 0.3s; opacity: 0; transform: translateY(30px); }
+    .insight-card.visible { opacity: 1; transform: translateY(0); }
+    .insight-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+    .insight-img { height: 250px; background: #ddd; background-position: center; background-size: cover; }
+    .insight-content { padding: 2rem; }
+    .insight-tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--c-gold); margin-bottom: 1rem; font-weight: 600; }
+    .insight-title { font-family: serif; font-size: 1.4rem; margin-bottom: 1rem; line-height: 1.3; }
+    .insight-excerpt { font-size: 0.95rem; color: #666; line-height: 1.6; }
+    
+    /* CTA & Footer */
+    .cta-section { padding: 8rem 4rem; text-align: center; background: var(--c-accent); color: #fff; }
+    .cta-title { font-family: serif; font-size: 3rem; margin-bottom: 2rem; }
+    .footer-wrapper { background: #050a14; }
+    .footer { padding: 4rem; color: rgba(255,255,255,0.6); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
+    
+    @media (max-width: 1024px) {
+      .grid-section { grid-template-columns: repeat(2, 1fr); margin-top: 0; }
+      .impact-grid { grid-template-columns: repeat(2, 1fr); gap: 4rem 2rem; }
+      .philosophy { flex-direction: column; padding: 6rem 3rem;}
+      .phil-image { width: 100%; height: 400px; }
+      .insights-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 2rem; flex-direction: column; align-items: flex-start; }
+      .brand { padding: 1.5rem 0; }
+      .nav-links { display: none; }
+      .hero { padding: 6rem 2rem 4rem 2rem; min-height: 70vh; }
+      .hero-title { font-size: 2.8rem; }
+      .grid-section { grid-template-columns: 1fr; padding: 4rem 2rem; }
+      .impact-section { padding: 4rem 2rem; }
+      .impact-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .return-btn { bottom: 1rem; left: 1rem; }
+      .insights-grid { grid-template-columns: 1fr; }
+      .philosophy, .insights, .cta-section { padding: 4rem 2rem; }
+      .insights-header { flex-direction: column; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; }
+      .footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- High-Speed UX Preloader -->
+  <div class="loader" id="loader">
+    <div class="loader-text">MERIDIAN</div>
+    <div class="loader-line"></div>
+  </div>
+
+  <nav class="nav">
+    <div class="brand">MERIDIAN PARTNERS</div>
+    <ul class="nav-links">
+      <li class="nav-item">
+        <span data-ja="専門領域" data-en="Expertise">Expertise</span>
+        <!-- Robust Info Architecture Mega Menu -->
+        <div class="mega-menu">
+          <div>
+            <div class="mega-title" data-ja="ケイパビリティ" data-en="Capabilities">Capabilities</div>
+            <a href="#" onclick="alertDemo(event)" class="mega-link" data-ja="戦略・オペレーション" data-en="Strategy & Operations">Strategy & Operations</a>
+            <div class="mega-desc" data-ja="効率を推進するためのオペレーティングモデルの再定義。" data-en="Redefining operating models to drive efficiency.">Redefining operating models to drive efficiency.</div>
+            <a href="#" onclick="alertDemo(event)" class="mega-link" data-ja="デジタルトランスフォーメーション" data-en="Digital Transformation">Digital Transformation</a>
+            <div class="mega-desc" data-ja="堅牢なデジタルエコシステムの構築。" data-en="Architecting robust digital ecosystems.">Architecting robust digital ecosystems.</div>
+            <a href="#" onclick="alertDemo(event)" class="mega-link" data-ja="コーポレートファイナンス" data-en="Corporate Finance">Corporate Finance</a>
+            <div class="mega-desc" data-ja="資本配分の最適化。" data-en="Optimizing capital allocation.">Optimizing capital allocation.</div>
+          </div>
+          <div>
+            <div class="mega-title" data-ja="産業別" data-en="Industries">Industries</div>
+            <a href="#" onclick="alertDemo(event)" class="mega-link" data-ja="金融サービス" data-en="Financial Services">Financial Services</a>
+            <a href="#" onclick="alertDemo(event)" class="mega-link" data-ja="ヘルスケア" data-en="Healthcare">Healthcare</a>
+            <a href="#" onclick="alertDemo(event)" class="mega-link" data-ja="テクノロジー＆メディア" data-en="Technology & Media">Technology & Media</a>
+            <a href="#" onclick="alertDemo(event)" class="mega-link" data-ja="エネルギー" data-en="Energy & Transition">Energy & Transition</a>
+          </div>
+        </div>
+      </li>
+      <li class="nav-item" style="cursor: pointer;" onclick="alertDemo(event)" data-ja="インサイト" data-en="Insights">Insights</li>
+      <li class="nav-item" style="cursor: pointer;" onclick="alertDemo(event)" data-ja="採用情報" data-en="Careers">Careers</li>
+    </ul>
+  </nav>
+  
+  <header class="hero">
+    <div class="hero-content" id="heroContent">
+      <h1 class="hero-title" data-ja="グローバル企業の未来を創造する。" data-en="Shaping the future of global enterprise.">Shaping the future of global enterprise.</h1>
+      <p class="hero-desc" data-ja="私たちは戦略的明晰さと堅牢な実行アーキテクチャを提供し、業界リーダーが複雑性を乗り越えリスクを軽減し、持続可能な成長を加速するよう支援します。" data-en="We provide strategic clarity and robust execution architectures to help industry leaders navigate complexity, mitigate risk, and accelerate sustainable growth.">We provide strategic clarity and robust execution architectures to help industry leaders navigate complexity, mitigate risk, and accelerate sustainable growth.</p>
+      <a href="#vision" class="btn" data-ja="ビジョンを見る" data-en="Discover Our Vision">Discover Our Vision</a>
+    </div>
+  </header>
+  
+  <main>
+  
+  <section class="grid-wrapper">
+    <div class="grid-section">
+      <article class="card fade-trigger" style="transition-delay: 0s;">
+        <div class="card-num">01</div>
+        <div class="card-title" data-ja="戦略・オペレーション" data-en="Strategy & Operations">Strategy & Operations</div>
+        <div class="card-desc" data-ja="複雑な組織内で真の効率性を高め、埋もれた価値を引き出すためにオペレーティングモデルを再定義します。" data-en="Redefining operating models to drive true efficiency and unlock trapped value within complex global organizations.">Redefining operating models to drive true efficiency and unlock trapped value within complex global organizations.</div>
+      </article>
+      <article class="card fade-trigger" style="transition-delay: 0.15s;">
+        <div class="card-num">02</div>
+        <div class="card-title" data-ja="デジタルトランスフォーメーション" data-en="Digital Transformation">Digital Transformation</div>
+        <div class="card-desc" data-ja="データ活用によって持続的な競争優位性を生み出すための堅牢なデジタルエコシステムとAIの統合を設計します。" data-en="Architecting robust digital ecosystems and AI integrations that leverage data to create sustained competitive advantages.">Architecting robust digital ecosystems and AI integrations that leverage data to create sustained competitive advantages.</div>
+      </article>
+      <article class="card fade-trigger" style="transition-delay: 0.3s;">
+        <div class="card-num">03</div>
+        <div class="card-title" data-ja="コーポレートファイナンス" data-en="Corporate Finance">Corporate Finance</div>
+        <div class="card-desc" data-ja="長期的な株主価値を最大化するための資本配分の最適化、資産の再構築、およびM&Aのモデリングを行います。" data-en="Optimizing capital allocation, restructuring assets, and modeling M&A targets to maximize long-term shareholder value.">Optimizing capital allocation, restructuring assets, and modeling M&A targets to maximize long-term shareholder value.</div>
+      </article>
+    </div>
+  </section>
+  
+  <section class="vision-section" id="vision">
+    <div class="vision-label fade-trigger" data-ja="私たちのビジョン" data-en="Our Vision">Our Vision</div>
+    <div class="vision-statement fade-trigger" style="transition-delay: 0.2s;">
+      <span data-ja="グローバル市場の変化を追いかけるのではなく、" data-en="We do not merely react to shifts in the global market.">We do not merely react to shifts in the global market.</span><br>
+      <strong data-ja="変化そのものを設計する。" data-en="We design the disruption itself.">We design the disruption itself.</strong>
+    </div>
+    <div class="vision-author fade-trigger" style="transition-delay: 0.4s;" data-ja="— Meridian Partners 経営陣" data-en="— Meridian Partners Executive Board">— Meridian Partners Executive Board</div>
+  </section>
+  
+  <section class="impact-section">
+    <div class="impact-grid">
+      <div class="i-item fade-trigger" style="transition-delay: 0s;"><div class="i-num">$50B+</div><div class="i-label" data-ja="創出価値" data-en="Value Unlocked">Value Unlocked</div></div>
+      <div class="i-item fade-trigger" style="transition-delay: 0.1s;"><div class="i-num">120+</div><div class="i-label" data-ja="グローバルパートナー" data-en="Global Partners">Global Partners</div></div>
+      <div class="i-item fade-trigger" style="transition-delay: 0.2s;"><div class="i-num">45</div><div class="i-label" data-ja="展開国" data-en="Countries Served">Countries Served</div></div>
+      <div class="i-item fade-trigger" style="transition-delay: 0.3s;"><div class="i-num">Top 10</div><div class="i-label" data-ja="業界ベンチマーク" data-en="Industry Benchmark">Industry Benchmark</div></div>
+    </div>
+  </section>
+
+  <section class="philosophy">
+    <figure class="phil-image fade-trigger" style="margin: 0;"></figure>
+    <div class="phil-text fade-trigger">
+      <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--c-gold); margin-bottom: 1rem; font-weight: 600;" data-ja="私たちのアプローチ" data-en="Our Approach">Our Approach</div>
+      <h2 class="phil-title" data-ja="複雑性を排除し、本質的な価値を引き出す。" data-en="Eliminating complexity. Extracting essential value.">Eliminating complexity. Extracting essential value.</h2>
+      <p class="phil-desc" data-ja="メリディアン・パートナーズは、単なるアドバイザリーにとどまりません。私たちは変革のアーキテクトです。トップティアのコンサルティング手法と最先端のデータ分析を組み合わせ、業界のパラダイムを書き換えるソリューションを構築します。" data-en="Meridian Partners goes beyond traditional advisory. We are architects of transformation. By combining top-tier consulting methodologies with cutting-edge data analytics, we build solutions that rewrite industry paradigms.">Meridian Partners goes beyond traditional advisory. We are architects of transformation. By combining top-tier consulting methodologies with cutting-edge data analytics, we build solutions that rewrite industry paradigms.</p>
+      <p class="phil-desc" data-ja="実行不可能なノイズを排除し、Cクラスのエグゼクティブが自信を持って意思決定できる「透明性」を提供します。" data-en="We filter out unactionable noise, providing the transparency C-level executives need to make decisions with absolute confidence.">We filter out unactionable noise, providing the transparency C-level executives need to make decisions with absolute confidence.</p>
+      <a href="#" onclick="alertDemo(event)" class="btn" style="margin-top: 1rem; background: transparent; border: 1px solid var(--c-gold); color: var(--c-accent);" data-ja="リーダーシップチーム" data-en="Meet the Leadership">Meet the Leadership</a>
+    </div>
+  </section>
+  
+  <section class="insights">
+    <div class="insights-header">
+      <h2 class="insights-title" data-ja="最新のインサイト" data-en="Latest Insights">Latest Insights</h2>
+      <a href="#" onclick="alertDemo(event)" style="color: var(--c-accent); text-transform: uppercase; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-decoration: none; border-bottom: 1px solid var(--c-accent); padding-bottom: 5px;" data-ja="すべての記事を見る" data-en="View All Articles">View All Articles</a>
+    </div>
+    <div class="insights-grid">
+      <a href="#" onclick="alertDemo(event)" class="insight-card fade-trigger" style="transition-delay: 0s; text-decoration:none;">
+        <article>
+          <div class="insight-img" style="background-image: url('img/meridian-abstract.png');"></div>
+          <div class="insight-content">
+            <div class="insight-tag" data-ja="テクノロジー" data-en="Technology">Technology</div>
+            <div class="insight-title" data-ja="AI主導のオペレーション構築" data-en="Architecting AI-Driven Operations">Architecting AI-Driven Operations</div>
+            <div class="insight-excerpt" data-ja="次世代のエンタープライズアーキテクチャがどのように意思決定サイクルを短縮するかを探る。" data-en="Exploring how next-generation enterprise architectures are shortening decision cycles.">Exploring how next-generation enterprise architectures are shortening decision cycles.</div>
+          </div>
+        </article>
+      </a>
+      <a href="#" onclick="alertDemo(event)" class="insight-card fade-trigger" style="transition-delay: 0.1s; text-decoration:none;">
+        <article>
+          <div class="insight-img" style="background-image: url('img/corporate-bg.png'); filter: grayscale(100%);"></div>
+          <div class="insight-content">
+            <div class="insight-tag" data-ja="戦略" data-en="Strategy">Strategy</div>
+            <div class="insight-title" data-ja="不確実性下での資本配分" data-en="Capital Allocation Under Uncertainty">Capital Allocation Under Uncertainty</div>
+            <div class="insight-excerpt" data-ja="マクロ経済の変動期において、レジリエンスを高めるためのポートフォリオ再構築のベストプラクティス。" data-en="Best practices for restructuring portfolios to enhance resilience during macroeconomic volatility.">Best practices for restructuring portfolios to enhance resilience during macroeconomic volatility.</div>
+          </div>
+        </article>
+      </a>
+      <a href="#" onclick="alertDemo(event)" class="insight-card fade-trigger" style="transition-delay: 0.2s; text-decoration:none;">
+        <article>
+          <div class="insight-img" style="background-image: url('img/meridian-report.png');"></div>
+          <div class="insight-content">
+            <div class="insight-tag" data-ja="レポート" data-en="Report">Report</div>
+            <div class="insight-title" data-ja="2026年 グローバルM&Aトレンド" data-en="2026 Global M&A Trends">2026 Global M&A Trends</div>
+            <div class="insight-excerpt" data-ja="クロスボーダー取引とプライベートエクイティの動向に関する四半期ごとの分析レポート。" data-en="Quarterly analysis on cross-border transactions and private equity movements.">Quarterly analysis on cross-border transactions and private equity movements.</div>
+          </div>
+        </article>
+      </a>
+    </div>
+  </section>
+  
+  <section class="cta-section">
+    <h2 class="cta-title fade-trigger" data-ja="次のフェーズへ進む準備はできていますか？" data-en="Ready to navigate the next phase?">Ready to navigate the next phase?</h2>
+    <p class="fade-trigger" style="font-size: 1.2rem; color: rgba(255,255,255,0.7); margin-bottom: 3rem; font-weight: 300; max-width: 600px; margin-inline: auto;" data-ja="私たちの専門家チームにご相談ください。複雑な課題を具体的な成長戦略へと変換します。" data-en="Connect with our specialists. We translate complex organizational challenges into tangible growth strategies.">Connect with our specialists. We translate complex organizational challenges into tangible growth strategies.</p>
+    <a href="#" onclick="alertDemo(event)" class="btn fade-trigger" style="background: #fff; color: var(--c-accent);" data-ja="お問い合わせ" data-en="Contact Our Partners">Contact Our Partners</a>
+  </section>
+  </main>
+  
+  <div class="footer-wrapper">
+    <footer class="footer">
+      <div>&copy; 2026 Meridian Partners. All rights reserved.</div>
+      <div style="display: flex; gap: 2rem;">
+        <a href="#" onclick="alertDemo(event)" style="color: inherit; text-decoration: none;">Terms</a>
+        <a href="#" onclick="alertDemo(event)" style="color: inherit; text-decoration: none;">Privacy</a>
+        <a href="#" onclick="alertDemo(event)" style="color: inherit; text-decoration: none;">LinkedIn</a>
+      </div>
+    </footer>
+  </div>
+  
+  <a href="index.html#works" class="return-btn" data-ja="← ポートフォリオに戻る" data-en="← Back to Portfolio">← Back to Portfolio</a>
+
+  <div class="demo-lang-switch" style="position:fixed; bottom:2rem; right:2rem; z-index:100; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:0.5rem; border-radius:30px; display:flex; gap:0.5rem; border:1px solid rgba(255,255,255,0.1);">
+    <button class="lang-btn" data-lang="en" style="background:transparent; border:none; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600; padding:0.4rem 0.8rem; border-radius:20px; transition:all 0.3s; pointer-events:all;">EN</button>
+    <button class="lang-btn" data-lang="ja" style="background:transparent; border:none; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600; padding:0.4rem 0.8rem; border-radius:20px; transition:all 0.3s; pointer-events:all;">JA</button>
+  </div>
+  <style>
+    .demo-lang-switch .lang-btn.is-active { background: #fff !important; color: #000 !important; }
+  </style>
+  <script src="js/i18n.js"></script>
+
+  <script>
+    // High-speed Simulated UX
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('heroContent').classList.add('loaded');
+      }, 600); // Fast load simulation
+    });
+
+    // Intersection Observer for scroll triggers
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-trigger').forEach(el => observer.observe(el));
+    
+    // Demo Alert function
+    function alertDemo(e) {
+      if(e) e.preventDefault();
+      const isJa = document.documentElement.lang === 'ja';
+      alert(isJa ? 'このリンクはデモ用のため機能しません。' : 'This link is for demonstration purposes only.');
+    }
+  </script>
+</body>
+</html>

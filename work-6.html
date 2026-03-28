@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Luxury Real Estate Portal | Demo</title>
+  <style>
+    :root { --r-bg: #111; --r-text: #fff; --r-accent: #c2a67e; --r-glass: rgba(255,255,255,0.08); }
+    body { background: var(--r-bg); color: var(--r-text); font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; overflow-x: hidden; }
+    
+    /* Hero Section */
+    .hero { min-height: 85vh; width: 100%; position: relative; display: flex; align-items: center; justify-content: center; background: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000') center/cover no-repeat; }
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0,0,0,0.3), rgba(17,17,17,1)); }
+    
+    .nav { position: absolute; top: 0; width: 100%; padding: 2rem 4rem; display: flex; justify-content: space-between; align-items: center; z-index: 10; box-sizing: border-box; }
+    .brand { font-family: serif; font-size: 1.5rem; letter-spacing: 0.2em; text-transform: uppercase; }
+    .nav-links { display: flex; gap: 3rem; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+    
+    .content { position: relative; z-index: 10; text-align: center; margin-top: -50px; animation: fadeUp 1s 0.5s both; width: 100%; }
+    .hero-title { font-family: serif; font-size: clamp(3rem, 6vw, 5rem); font-weight: 400; letter-spacing: 0.1em; margin: 0 0 1rem 0; }
+    .hero-sub { font-size: 1.1rem; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 4rem; color: #aaa; }
+    
+    /* Search Glass Filter */
+    .search-glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 1.5rem; display: flex; gap: 1rem; width: 900px; max-width: 90%; margin: 0 auto; box-shadow: 0 30px 60px rgba(0,0,0,0.4); text-align: left; position: relative; }
+    .search-item { flex: 1; padding: 0 1.5rem; border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: center; position: relative; outline: none; cursor: pointer; }
+    .search-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); margin-bottom: 0.5rem; }
+    .search-val { font-size: 1.1rem; font-family: serif; font-weight: 400; color: #fff; display: flex; justify-content: space-between; align-items: center; transition: color 0.3s; }
+    .search-item:hover .search-val { color: var(--r-accent); }
+    .search-val span { font-size: 0.6rem; color: #888; font-family: sans-serif; transition: transform 0.3s; }
+    .search-item:focus-within .search-val span { transform: rotate(180deg); }
+    
+    .dropdown-menu { position: absolute; top: calc(100% + 20px); left: 0; width: 100%; min-width: 250px; background: rgba(20,20,20,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.5rem 0; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 50; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+    .search-item:focus-within .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+    .drop-item { padding: 1rem 1.5rem; color: #aaa; transition: color 0.2s, background 0.2s; font-family: serif; font-size: 1.1rem; }
+    .drop-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+
+    .search-btn { background: var(--r-accent); color: #fff; border: none; padding: 0 2.5rem; font-weight: 600; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; border-radius: 2px; }
+    .search-btn:hover { background: #ad946f; }
+    .search-btn.loading { opacity: 0.8; pointer-events: none; color: transparent; position: relative; }
+    .search-btn.loading::after { content: ""; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+    /* Property Grid */
+    .prop-section { padding: 6rem 4rem; position: relative; z-index: 10; max-width: 1600px; margin: 0 auto; }
+    .prop-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; }
+    .prop-heading { font-family: serif; font-size: 2rem; font-weight: 400; margin: 0; }
+    .prop-count { color: #888; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    
+    .prop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
+    .prop-card { cursor: pointer; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
+    .prop-card:hover { transform: translateY(-10px); }
+    .prop-card:hover .prop-img img { transform: scale(1.05); }
+    
+    .prop-img { width: 100%; aspect-ratio: 4/3; overflow: hidden; position: relative; background: #222; margin-bottom: 1.5rem; border-radius: 2px; }
+    .prop-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    
+    .prop-price { font-size: 1.5rem; font-weight: 400; font-family: serif; color: var(--r-accent); margin-bottom: 0.5rem; }
+    .prop-title { font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: 500; }
+    .prop-meta { font-size: 0.85rem; color: #888; letter-spacing: 0.05em; }
+
+    /* Skeleton Loading state */
+    .skeleton .prop-img img { opacity: 0; }
+    .skeleton .prop-img::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation: skeletonShine 1.5s infinite; }
+    .skeleton .prop-price, .skeleton .prop-title, .skeleton .prop-meta { color: transparent !important; background: #222; border-radius: 2px; width: fit-content; position: relative; overflow: hidden; }
+    .skeleton .prop-price::after, .skeleton .prop-title::after, .skeleton .prop-meta::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation: skeletonShine 1.5s infinite; }
+    
+    @keyframes skeletonShine { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes fadeUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+
+    /* Lightbox Gallery */
+    .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
+    .lightbox.active { opacity: 1; pointer-events: all; }
+    .lb-close { position: absolute; top: 2rem; right: 3rem; color: #fff; font-size: 3rem; cursor: pointer; background: none; border: none; font-weight: 300; transition: transform 0.3s; padding: 0; line-height: 1; }
+    .lb-close:hover { transform: rotate(90deg); color: var(--r-accent); }
+    .lb-img { max-width: 90%; max-height: 75vh; object-fit: contain; box-shadow: 0 40px 80px rgba(0,0,0,0.8); transform: scale(0.95); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 2px; }
+    .lightbox.active .lb-img { transform: scale(1); }
+    .lb-info { text-align: center; margin-top: 2rem; opacity: 0; transform: translateY(20px); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s; }
+    .lightbox.active .lb-info { opacity: 1; transform: translateY(0); }
+    .lb-title { color: #fff; font-family: serif; font-size: 2rem; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .lb-price { color: var(--r-accent); font-size: 1.2rem; letter-spacing: 0.1em; }
+    
+    /* Luxury Footer */
+    .r-footer { padding: 4rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4rem; position: relative; z-index: 10; }
+    .f-brand { font-family: serif; font-size: 1.5rem; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2rem; color: #fff; }
+    .f-links { display: flex; justify-content: center; gap: 3rem; margin-bottom: 2rem; }
+    .f-links a { color: #888; text-decoration: none; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; transition: color 0.3s; }
+    .f-links a:hover { color: #fff; }
+    .f-copy { font-size: 0.75rem; color: #555; letter-spacing: 0.05em; }
+
+    .return-btn { position: fixed; bottom: 2rem; right: 2rem; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 0.8rem 1.5rem; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); text-decoration: none; font-size: 0.9rem; transition: transform 0.3s, background 0.3s; z-index: 100; font-weight: 500; }
+    .return-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+
+    @media (max-width: 1024px) {
+      .search-glass { flex-direction: column; width: 100%; border-radius: 12px; }
+      .search-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; }
+      .search-btn { padding: 1.5rem; border-radius: 0 0 12px 12px; }
+      .prop-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 2rem; flex-direction: column; gap: 1rem; }
+      .nav-links { display: none; }
+      .prop-section { padding: 4rem 2rem; }
+      .prop-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="overlay"></div>
+    <nav class="nav">
+      <div class="brand">Elysium Estates</div>
+      <div class="nav-links">
+        <span onclick="alertDemo(event)" style="cursor: pointer; transition: color 0.3s;" onmouseover="this.style.color='var(--r-accent)'" onmouseout="this.style.color=''" data-ja="物件一覧" data-en="Properties">Properties</span>
+        <span onclick="alertDemo(event)" style="cursor: pointer; transition: color 0.3s;" onmouseover="this.style.color='var(--r-accent)'" onmouseout="this.style.color=''" data-ja="エージェント" data-en="Agents">Agents</span>
+        <span onclick="alertDemo(event)" style="cursor: pointer; transition: color 0.3s;" onmouseover="this.style.color='var(--r-accent)'" onmouseout="this.style.color=''" data-ja="ジャーナル" data-en="Journal">Journal</span>
+      </div>
+    </nav>
+    <div class="content">
+      <h1 class="hero-title" data-ja="比類なきラグジュアリー" data-en="Beyond Extraordinary">Beyond Extraordinary</h1>
+      <div class="hero-sub" data-ja="世界最高峰のレジデンスをご堪能ください。" data-en="Discover the world's finest residences.">Discover the world's finest residences.</div>
+      
+      <div class="search-glass">
+        <div class="search-item" tabindex="0">
+          <div class="search-label" data-ja="ロケーション" data-en="Location">Location</div><div class="search-val" id="val-loc">Beverly Hills, CA <span>▼</span></div>
+          <div class="dropdown-menu">
+            <div class="drop-item">Beverly Hills, CA</div>
+            <div class="drop-item">Malibu, CA</div>
+            <div class="drop-item">Tribeca, NY</div>
+            <div class="drop-item">London, UK</div>
+          </div>
+        </div>
+        <div class="search-item" tabindex="0">
+          <div class="search-label" data-ja="物件タイプ" data-en="Property Type">Property Type</div><div class="search-val" id="val-type">Villa / Mansion <span>▼</span></div>
+          <div class="dropdown-menu">
+            <div class="drop-item">Villa / Mansion</div>
+            <div class="drop-item">Penthouse</div>
+            <div class="drop-item">Private Estate</div>
+          </div>
+        </div>
+        <div class="search-item" style="border:none;" tabindex="0">
+          <div class="search-label" data-ja="価格帯" data-en="Price Range">Price Range</div><div class="search-val" id="val-price">$10M - $50M <span>▼</span></div>
+          <div class="dropdown-menu">
+            <div class="drop-item" data-usd-1="10" data-usd-2="50">$10M - $50M</div>
+            <div class="drop-item" data-usd-1="50" data-usd-2="100">$50M - $100M</div>
+            <div class="drop-item" data-usd-1="100" data-usd-2="null">$100M+</div>
+          </div>
+        </div>
+        <button class="search-btn" id="searchBtn" data-ja="検索" data-en="Search">Search</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+  <section class="prop-section">
+    <div class="prop-header">
+      <h2 class="prop-heading" data-ja="限定公開物件" data-en="Exclusive Listings">Exclusive Listings</h2>
+      <div class="prop-count" id="propCount" data-ja="全6件を表示" data-en="Showing 6 Properties">Showing 6 Properties</div>
+    </div>
+    
+    <div class="prop-grid" id="propGrid">
+      <article class="prop-card">
+        <div class="prop-img"><img src="img/prop_1.png" alt="Villa"></div>
+        <div class="prop-price" data-base-usd="24500000">$24,500,000</div>
+        <div class="prop-title" data-ja="ザ・サミット・エステート" data-en="The Summit Estate">The Summit Estate</div>
+        <div class="prop-meta" data-ja="ビバリーヒルズ, CA • 1,114㎡ • 8ベッドルーム" data-en="Beverly Hills, CA • 12,000 sqft • 8 Bed">Beverly Hills, CA • 12,000 sqft • 8 Bed</div>
+      </article>
+      <article class="prop-card">
+        <div class="prop-img"><img src="img/prop_2.png" alt="Villa"></div>
+        <div class="prop-price" data-base-usd="45000000">$45,000,000</div>
+        <div class="prop-title" data-ja="オーシャンフロント・オアシス" data-en="Oceanfront Oasis">Oceanfront Oasis</div>
+        <div class="prop-meta" data-ja="マリブ, CA • 882㎡ • 6ベッドルーム" data-en="Malibu, CA • 9,500 sqft • 6 Bed">Malibu, CA • 9,500 sqft • 6 Bed</div>
+      </article>
+      <article class="prop-card">
+        <div class="prop-img"><img src="img/prop_3.png" alt="Villa"></div>
+        <div class="prop-price" data-base-usd="18750000">$18,750,000</div>
+        <div class="prop-title" data-ja="クラシック・シャトー" data-en="Classic Chateau">Classic Chateau</div>
+        <div class="prop-meta" data-ja="ヨーロッパ • 1,690㎡ • 14ベッドルーム" data-en="Europe • 18,200 sqft • 14 Bed">Europe • 18,200 sqft • 14 Bed</div>
+      </article>
+      <article class="prop-card">
+        <div class="prop-img"><img src="img/prop_4.png" alt="Villa"></div>
+        <div class="prop-price" data-base-usd="32000000">$32,000,000</div>
+        <div class="prop-title" data-ja="スカイライン・ペントハウス" data-en="Skyline Penthouse">Skyline Penthouse</div>
+        <div class="prop-meta" data-ja="ニューヨーク, NY • 464㎡ • 4ベッドルーム" data-en="New York, NY • 5,000 sqft • 4 Bed">New York, NY • 5,000 sqft • 4 Bed</div>
+      </article>
+      <article class="prop-card">
+        <div class="prop-img"><img src="img/prop_5.png" alt="Villa"></div>
+        <div class="prop-price" data-base-usd="12900000">$12,900,000</div>
+        <div class="prop-title" data-ja="グラス・パビリオン" data-en="Glass Pavilion">Glass Pavilion</div>
+        <div class="prop-meta" data-ja="フォレストリザーブ • 603㎡ • 4ベッドルーム" data-en="Forest Reserve • 6,500 sqft • 4 Bed">Forest Reserve • 6,500 sqft • 4 Bed</div>
+      </article>
+      <article class="prop-card">
+        <div class="prop-img"><img src="img/prop_6.png" alt="Villa"></div>
+        <div class="prop-price" data-base-usd="55000000">$55,000,000</div>
+        <div class="prop-title" data-ja="ザ・クラウンジュエル" data-en="The Crown Jewel">The Crown Jewel</div>
+        <div class="prop-meta" data-ja="ビバリーパーク, CA • 2,043㎡ • 12ベッドルーム" data-en="Beverly Park, CA • 22,000 sqft • 12 Bed">Beverly Park, CA • 22,000 sqft • 12 Bed</div>
+      </article>
+    </div>
+  </section>
+  </main>
+
+  <footer class="r-footer">
+    <div class="f-brand">Elysium Estates</div>
+    <div class="f-links">
+      <a href="#" onclick="alertDemo(event)" data-ja="利用規約" data-en="Terms">Terms</a>
+      <a href="#" onclick="alertDemo(event)" data-ja="プライバシーポリシー" data-en="Privacy">Privacy</a>
+      <a href="#" onclick="alertDemo(event)" data-ja="お問い合わせ" data-en="Contact">Contact</a>
+    </div>
+    <div class="f-copy">&copy; 2026 Elysium Estates. All rights reserved.</div>
+  </footer>
+
+  <a href="index.html#works" class="return-btn" data-ja="← ポートフォリオに戻る" data-en="← Back to Portfolio">← Back to Portfolio</a>
+
+  <div class="demo-lang-switch" style="position:fixed; bottom:2rem; right:12rem; z-index:100; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:0.5rem; border-radius:30px; display:flex; gap:0.5rem; border:1px solid rgba(255,255,255,0.1);">
+    <button class="lang-btn" data-lang="en" style="background:transparent; border:none; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600; padding:0.4rem 0.8rem; border-radius:20px; transition:all 0.3s; pointer-events:all;">EN</button>
+    <button class="lang-btn" data-lang="ja" style="background:transparent; border:none; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600; padding:0.4rem 0.8rem; border-radius:20px; transition:all 0.3s; pointer-events:all;">JA</button>
+  </div>
+  <style>
+    .demo-lang-switch .lang-btn.is-active { background: #fff !important; color: #000 !important; }
+    @media(max-width: 768px) {
+      .demo-lang-switch { bottom: 6rem; right: 2rem; }
+    }
+  </style>
+  <script src="js/i18n.js"></script>
+
+  <!-- Lightbox DOM -->
+  <div class="lightbox" id="lightbox">
+    <button class="lb-close" id="lbClose">&times;</button>
+    <img src="" alt="High-Res Property" class="lb-img" id="lbImg">
+    <div class="lb-info">
+      <div class="lb-title" id="lbTitle"></div>
+      <div class="lb-price" id="lbPrice"></div>
+    </div>
+  </div>
+
+  <script>
+    function alertDemo(e) {
+      if(e) e.preventDefault();
+      const isJa = document.documentElement.lang === 'ja';
+      alert(isJa ? 'このリンクはデモ用のため機能しません。' : 'This link is for demonstration purposes only.');
+    }
+
+    // Smooth Custom Dropdown Logic
+    const searchItems = document.querySelectorAll('.search-item');
+    searchItems.forEach(item => {
+      const valDisplay = item.querySelector('.search-val');
+      const dropItems = item.querySelectorAll('.drop-item');
+      if(!valDisplay || dropItems.length === 0) return;
+      
+      dropItems.forEach(drop => {
+        drop.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // Update text but preserve the dropdown arrow span
+          const prevText = valDisplay.innerHTML;
+          valDisplay.innerHTML = `${drop.textContent} <span>▼</span>`;
+          item.blur(); // Close the dropdown using CSS focus-within
+        });
+      });
+    });
+
+    // Skeleton Search Simulation
+    const searchBtn = document.getElementById('searchBtn');
+    const propCards = document.querySelectorAll('.prop-card');
+    const propCount = document.getElementById('propCount');
+    
+    searchBtn.addEventListener('click', () => {
+      if(searchBtn.classList.contains('loading')) return;
+      searchBtn.classList.add('loading');
+      propCount.style.opacity = '0.5';
+      
+      // Turn grid into skeletons
+      propCards.forEach(card => card.classList.add('skeleton'));
+      
+      // Simulate fast network fetch
+      setTimeout(() => {
+        searchBtn.classList.remove('loading');
+        propCards.forEach((card, i) => {
+           // Create a simple shuffling effect by hiding 1-2 random cards occasionally to simulate "filtration"
+           if(Math.random() > 0.8) {
+               card.style.display = 'none';
+           } else {
+               card.style.display = 'block';
+           }
+           card.classList.remove('skeleton');
+        });
+        
+        // Update count purely for visual feedback
+        const visibleCount = Array.from(propCards).filter(c => c.style.display !== 'none').length;
+        const isJa = document.documentElement.lang === 'ja';
+        propCount.textContent = isJa ? `全${visibleCount}件を表示` : `Showing ${visibleCount} Properties`;
+        propCount.style.opacity = '1';
+        
+        // Scroll down to grid
+        document.querySelector('.prop-section').scrollIntoView({ behavior: 'smooth' });
+      }, 1200);
+    });
+
+    // High-Quality Image Lightbox Gallery
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbTitle = document.getElementById('lbTitle');
+    const lbPrice = document.getElementById('lbPrice');
+    // Robust Lightbox Event Binding with localization
+    propCards.forEach(card => {
+      card.addEventListener('click', () => {
+        // Do not trigger if card is in skeleton/loading mode
+        if(card.classList.contains('skeleton')) return;
+
+        const img = card.querySelector('img').src;
+        const titleEl = card.querySelector('.prop-title');
+        const priceEl = card.querySelector('.prop-price');
+        const metaEl = card.querySelector('.prop-meta');
+        
+        lbImg.src = img;
+        
+        // Transfer title text and localization attributes exactly
+        lbTitle.textContent = titleEl.textContent;
+        lbTitle.setAttribute('data-ja', titleEl.getAttribute('data-ja'));
+        lbTitle.setAttribute('data-en', titleEl.getAttribute('data-en'));
+        
+        // Store raw attributes securely on the lightbox label for dynamic updates
+        lbPrice.setAttribute('data-base-usd', priceEl.getAttribute('data-base-usd'));
+        lbPrice.setAttribute('data-meta-ja', metaEl.getAttribute('data-ja'));
+        lbPrice.setAttribute('data-meta-en', metaEl.getAttribute('data-en'));
+        
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        
+        // Immediately paint the price to respect current Live Currency Rate
+        updatePrices();
+      });
+    });
+    
+    document.getElementById('lbClose').addEventListener('click', () => {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = 'auto'; // Restore scrolling
+    });
+
+    // --- Live Exchange Rate Dynamics ---
+    let usdToJpyRate = 145.5; // Fallback hardcoded rate
+    
+    async function fetchExchangeRate() {
+      try {
+        const res = await fetch('https://open.er-api.com/v6/latest/USD');
+        const data = await res.json();
+        if(data && data.rates && data.rates.JPY) {
+          usdToJpyRate = data.rates.JPY;
+          console.log('Live Exchange Rate Fetched:', usdToJpyRate);
+        }
+      } catch(e) {
+        console.warn('Exchange rate fetch failed, using fallback 145.5');
+      }
+    }
+    
+    function updatePrices() {
+      const isJa = document.documentElement.lang === 'ja';
+      
+      // Update Grid Cards
+      document.querySelectorAll('.prop-price').forEach(el => {
+        const usdStr = el.getAttribute('data-base-usd');
+        if(!usdStr) return;
+        const usd = parseInt(usdStr, 10);
+        
+        if(isJa) {
+          const jpy = Math.round(usd * usdToJpyRate);
+          const oku = Math.floor(jpy / 100000000);
+          const man = Math.floor((jpy % 100000000) / 10000);
+          let jpyStr = '';
+          if (oku > 0) jpyStr += `${oku}億`;
+          if (man > 0) jpyStr += `${man}万`;
+          el.textContent = `${jpyStr}円`;
+        } else {
+          el.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(usd);
+        }
+      });
+      
+      // Update Dropdown Price Ranges
+      document.querySelectorAll('.drop-item[data-usd-1]').forEach(el => {
+        const u1 = parseInt(el.getAttribute('data-usd-1'), 10);
+        const u2 = parseInt(el.getAttribute('data-usd-2'), 10);
+        
+        if(isJa) {
+           const oku1 = Math.round((u1 * 1000000 * usdToJpyRate) / 100000000);
+           if(isNaN(u2)) {
+              el.innerHTML = `${oku1}億円〜`;
+           } else {
+              const oku2 = Math.round((u2 * 1000000 * usdToJpyRate) / 100000000);
+              el.innerHTML = `${oku1}億円〜${oku2}億円`;
+           }
+        } else {
+           if(isNaN(u2)) {
+              el.innerHTML = `$${u1}M+`;
+           } else {
+              el.innerHTML = `$${u1}M - $${u2}M`;
+           }
+        }
+      });
+      
+      // Reset main display label to avoid format mixing
+      const priceVal = document.getElementById('val-price');
+      if(isJa && priceVal.innerHTML.includes('$')) {
+          priceVal.innerHTML = '金額帯を選択 <span>▼</span>';
+      } else if (!isJa && priceVal.innerHTML.includes('億')) {
+          priceVal.innerHTML = 'Select Range <span>▼</span>';
+      }
+
+      // Update Lightbox Modal (if data exists)
+      const lbPrice = document.getElementById('lbPrice');
+      if (lbPrice && lbPrice.hasAttribute('data-base-usd')) {
+        const usd = parseInt(lbPrice.getAttribute('data-base-usd'), 10);
+        const metaText = isJa ? lbPrice.getAttribute('data-meta-ja') : lbPrice.getAttribute('data-meta-en');
+              
+        if(isJa) {
+          const jpy = Math.round(usd * usdToJpyRate);
+          const oku = Math.floor(jpy / 100000000);
+          const man = Math.floor((jpy % 100000000) / 10000);
+          let jpyStr = '';
+          if (oku > 0) jpyStr += `${oku}億`;
+          if (man > 0) jpyStr += `${man}万`;
+          lbPrice.textContent = `${jpyStr}円 - ${metaText}`;
+        } else {
+          const usdStr = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(usd);
+          lbPrice.textContent = `${usdStr} - ${metaText}`;
+        }
+      }
+    }
+    
+    // Bind MutationObserver to track <html lang="ja"> changes globally
+    const langObserver = new MutationObserver(() => updatePrices());
+    langObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+    
+    // Initial fetch and render
+    document.addEventListener('DOMContentLoaded', async () => {
+       await fetchExchangeRate();
+       updatePrices();
+    });
+    lightbox.addEventListener('click', (e) => {
+      if(e.target === lightbox) {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+  </script>
+</body>
+</html>
