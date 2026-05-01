@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber Tech & Context API | T.N Portfolio Demo</title>
+  <meta name="description" content="T.Nポートフォリオ - React Context APIを利用したグローバルなライト/ダークモード切替と、サイバーテックUIの実装デモです。">
+  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Load React -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* =======================================================
+       CSS Variables controlled by [data-theme]
+       ======================================================= */
+    :root {
+      /* LIGHT MODE (Default) */
+      --bg-main: #f8fafc;
+      --bg-panel: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      
+      --accent-color: #2563eb;
+      --accent-glow: none;
+      
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Inter', sans-serif;
+      
+      --transition-speed: 0.3s;
+    }
+
+    [data-theme="dark"] {
+      /* DARK MODE (Cyber Tech) */
+      --bg-main: #020617;
+      --bg-panel: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      
+      --accent-color: #00f6ff; /* Neon Cyan */
+      --accent-glow: 0 0 15px rgba(0, 246, 255, 0.4), 0 0 30px rgba(0, 246, 255, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid Background Pattern */
+    .bg-grid {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-image: 
+        linear-gradient(to right, var(--border-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      z-index: -1;
+      transition: opacity var(--transition-speed);
+    }
+    [data-theme="dark"] .bg-grid {
+      opacity: 0.1;
+    }
+
+    /* Layout */
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Header & Toggle */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: border-color var(--transition-speed);
+    }
+    .logo {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 12px; height: 12px;
+      background-color: var(--accent-color);
+      box-shadow: var(--accent-glow);
+      transition: all var(--transition-speed);
+    }
+
+    .theme-toggle-btn {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      border-radius: 99px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .theme-toggle-btn:hover {
+      border-color: var(--accent-color);
+      box-shadow: var(--accent-glow);
+    }
+
+    /* Main Dashboard Area */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .panel {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 2rem;
+      transition: all var(--transition-speed);
+    }
+    [data-theme="dark"] .panel {
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .panel-header {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Terminal/Console Output */
+    .console-output {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      padding: 1rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      height: 300px;
+      overflow-y: auto;
+    }
+    .console-line { margin-bottom: 0.5rem; }
+    .console-line.highlight { color: var(--accent-color); font-weight: 700; text-shadow: var(--accent-glow); }
+
+    /* Node Status */
+    .node-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      filter: grayscale(100%) contrast(1.2);
+      transition: all 0.5s;
+    }
+    [data-theme="dark"] .node-img {
+      filter: grayscale(0%) contrast(1.1);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 1.5rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+    .pulse {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      box-shadow: var(--accent-glow);
+      animation: pulseAnim 2s infinite;
+    }
+    @keyframes pulseAnim {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.5); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .dashboard { grid-template-columns: 1fr; }
+    }
+
+    /* Fixed Return Btn */
+    .demo-return {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--bg-panel);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 4px;
+      z-index: 1000;
+      transition: all 0.2s;
+    }
+    .demo-return:hover {
+      border-color: var(--accent-color);
+      box-shadow: var(--accent-glow);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div id="root"></div>
+
+  <a href="index.html#works" class="demo-return">← Return to Portfolio</a>
+
+  <script type="text/babel">
+    const { useState, useEffect, useContext, createContext } = React;
+
+    // 1. Create Theme Context
+    const ThemeContext = createContext();
+
+    // 2. Theme Provider Component
+    const ThemeProvider = ({ children }) => {
+      // Default to dark mode for the cyber aesthetic, but allow toggling
+      const [theme, setTheme] = useState('dark');
+
+      // Update the data-theme attribute on the document body whenever theme changes
+      useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+      }, [theme]);
+
+      const toggleTheme = () => {
+        setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+      };
+
+      return (
+        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+          {children}
+        </ThemeContext.Provider>
+      );
+    };
+
+    // 3. Header Component (Consumes Context)
+    const Header = () => {
+      const { theme, toggleTheme } = useContext(ThemeContext);
+      return (
+        <header>
+          <div className="logo">
+            <div className="logo-icon"></div>
+            NEXUS_CORE
+          </div>
+          <button className="theme-toggle-btn" onClick={toggleTheme}>
+            {theme === 'light' ? '🌙 Switch to Dark' : '☀️ Switch to Light'}
+          </button>
+        </header>
+      );
+    };
+
+    // 4. Console Panel Component (Simulates incoming data)
+    const ConsolePanel = () => {
+      const [logs, setLogs] = useState([
+        { id: 1, text: 'System initialized.', type: 'normal' },
+        { id: 2, text: 'Connecting to main grid...', type: 'normal' },
+        { id: 3, text: 'Connection established. Latency: 12ms', type: 'highlight' }
+      ]);
+
+      useEffect(() => {
+        const interval = setInterval(() => {
+          const newId = Date.now();
+          const memory = Math.floor(Math.random() * 1024) + 512;
+          const newLog = { 
+            id: newId, 
+            text: `> Data packet received. Allocating ${memory}MB...`, 
+            type: Math.random() > 0.8 ? 'highlight' : 'normal' 
+          };
+          
+          setLogs(prev => {
+            const updated = [...prev, newLog];
+            return updated.length > 20 ? updated.slice(updated.length - 20) : updated;
+          });
+        }, 3000);
+        return () => clearInterval(interval);
+      }, []);
+
+      return (
+        <div className="panel">
+          <div className="panel-header">
+            <span>Terminal Output</span>
+            <span>Live</span>
+          </div>
+          <div className="console-output">
+            {logs.map(log => (
+              <div key={log.id} className={`console-line ${log.type === 'highlight' ? 'highlight' : ''}`}>
+                {log.text}
+              </div>
+            ))}
+            <div className="console-line highlight">_</div>
+          </div>
+        </div>
+      );
+    };
+
+    // 5. Status Panel Component
+    const StatusPanel = () => {
+      const { theme } = useContext(ThemeContext);
+      
+      return (
+        <div className="panel">
+          <div className="panel-header">
+            <span>Node Status</span>
+            <span style={{ color: 'var(--accent-color)', textShadow: 'var(--accent-glow)' }}>ONLINE</span>
+          </div>
+          <img src="img/cyber-node.png" alt="Cyber Node" className="node-img" />
+          <div className="status-indicator">
+            <div className="pulse"></div>
+            <span>{theme === 'dark' ? 'QUANTUM LINK ACTIVE' : 'STANDARD LINK ACTIVE'}</span>
+          </div>
+          <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            The UI reacts dynamically to the Context API. Background grids, image filters, and CSS variable glows are toggled globally.
+          </p>
+        </div>
+      );
+    };
+
+    // 6. Main App Assembly
+    const App = () => {
+      return (
+        <ThemeProvider>
+          <div className="app-container">
+            <Header />
+            <main className="dashboard">
+              <ConsolePanel />
+              <StatusPanel />
+            </main>
+          </div>
+        </ThemeProvider>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neo-Brutalism & React | T.N Portfolio Demo</title>
+  <meta name="description" content="T.Nポートフォリオ - Reactコンポーネントを用いたネオ・ブルータリズムデザインのUIモックアップです。">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Load React. Note: For a production app, use a build step. This CDN approach is for demo purposes. -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel for in-browser JSX compilation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* =======================================================
+       Neo-Brutalism Design Tokens
+       ======================================================= */
+    :root {
+      --bg-color: #E2E8F0; /* Cool Gray */
+      --text-color: #0F172A;
+      --border-color: #0F172A;
+      
+      --brand-yellow: #FDE047;
+      --brand-pink: #F472B6;
+      --brand-blue: #38BDF8;
+      --brand-green: #4ADE80;
+      
+      --brutal-shadow: 6px 6px 0px var(--border-color);
+      --brutal-shadow-hover: 2px 2px 0px var(--border-color);
+      --brutal-border: 4px solid var(--border-color);
+      
+      --font-main: 'Space Grotesk', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      line-height: 1.5;
+      overflow-x: hidden;
+      background-image: radial-gradient(var(--border-color) 1px, transparent 0);
+      background-size: 20px 20px;
+      background-position: -10px -10px;
+    }
+
+    /* Container for React Root */
+    #root {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 0;
+    }
+
+    /* Native CSS classes to be used in React Components */
+    .brutal-header {
+      background: #fff;
+      border: var(--brutal-border);
+      box-shadow: var(--brutal-shadow);
+      padding: 2rem;
+      margin-bottom: 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brutal-title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .brutal-btn {
+      background: var(--brand-yellow);
+      color: var(--text-color);
+      border: var(--brutal-border);
+      box-shadow: var(--brutal-shadow);
+      padding: 0.8rem 1.5rem;
+      font-family: var(--font-main);
+      font-weight: 900;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .brutal-btn:active {
+      transform: translate(4px, 4px);
+      box-shadow: var(--brutal-shadow-hover);
+    }
+    
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .brutal-card {
+      background: #fff;
+      border: var(--brutal-border);
+      box-shadow: var(--brutal-shadow);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .brutal-card:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 10px 10px 0px var(--border-color);
+    }
+
+    .card-img-wrapper {
+      border-bottom: var(--brutal-border);
+      background: var(--brand-pink);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      overflow: hidden;
+    }
+    .card-img-wrapper img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .brutal-card:hover .card-img-wrapper img {
+      transform: scale(1.1) rotate(10deg);
+    }
+
+    .card-body {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-tag {
+      align-self: flex-start;
+      background: var(--border-color);
+      color: #fff;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      line-height: 1.1;
+    }
+    .card-desc {
+      font-size: 1rem;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+      flex: 1;
+    }
+
+    .react-badge {
+      background: var(--brand-blue);
+      border: 2px solid var(--border-color);
+      padding: 0.2rem 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transform: rotate(-2deg);
+    }
+
+    /* Fixed Return Btn */
+    .demo-return {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #fff;
+      color: var(--text-color);
+      border: 3px solid var(--border-color);
+      box-shadow: 4px 4px 0px var(--border-color);
+      padding: 10px 20px;
+      font-family: var(--font-main);
+      font-weight: 900;
+      text-decoration: none;
+      z-index: 100;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .demo-return:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px var(--border-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- React Mount Point -->
+  <div id="root"></div>
+
+  <!-- Return Link -->
+  <a href="index.html#works" class="demo-return">← Return to Portfolio</a>
+
+  <!-- React Logic utilizing Babel JSX Compilation -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // 1. Reusable Card Component
+    const BrutalCard = ({ title, desc, tag, bgColor, likes, onLike }) => {
+      return (
+        <article className="brutal-card">
+          <div className="card-img-wrapper" style={{ backgroundColor: bgColor }}>
+            <img src="img/neo-star.png" alt="Neo Brutalist Star" />
+          </div>
+          <div className="card-body">
+            <span className="card-tag">{tag}</span>
+            <h3 className="card-title">{title}</h3>
+            <p className="card-desc">{desc}</p>
+            <button 
+              className="brutal-btn" 
+              style={{ width: '100%', fontSize: '1rem', backgroundColor: '#fff' }}
+              onClick={onLike}
+            >
+              HYPE! ({likes})
+            </button>
+          </div>
+        </article>
+      );
+    };
+
+    // 2. Main App Component
+    const App = () => {
+      // Demonstrating State Management
+      const [totalHype, setTotalHype] = useState(0);
+      const [cards, setCards] = useState([
+        { id: 1, title: 'Component Reusability', desc: 'Built entirely with React. This layout maps over an array of data to render modular components dynamically.', tag: 'React', bg: 'var(--brand-pink)', likes: 0 },
+        { id: 2, title: 'Neo-Brutalism Aesthetics', desc: 'Raw, unpolished, and highly contrasting. Emphasizes bold borders and hard shadows over soft gradients.', tag: 'CSS', bg: 'var(--brand-blue)', likes: 0 },
+        { id: 3, title: 'State Management', desc: 'Each card maintains its own interaction state while communicating with the global HYPE counter in the header.', tag: 'Hooks', bg: 'var(--brand-green)', likes: 0 }
+      ]);
+
+      const handleLike = (id) => {
+        setCards(cards.map(card => {
+          if (card.id === id) {
+            return { ...card, likes: card.likes + 1 };
+          }
+          return card;
+        }));
+        setTotalHype(prev => prev + 1);
+      };
+
+      return (
+        <div>
+          <header className="brutal-header">
+            <div>
+              <div className="react-badge">⚛️ Built with React via CDN</div>
+              <h1 className="brutal-title" style={{ marginTop: '0.5rem' }}>Neo-Brutalism</h1>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontWeight: 900, fontSize: '1.2rem' }}>TOTAL GLOBAL HYPE</p>
+              <div className="brutal-btn" style={{ fontSize: '2rem', cursor: 'default', transform: 'none', boxShadow: 'var(--brutal-shadow)' }}>
+                🔥 {totalHype}
+              </div>
+            </div>
+          </header>
+
+          <main className="grid-container">
+            {cards.map(card => (
+              <BrutalCard 
+                key={card.id}
+                title={card.title}
+                desc={card.desc}
+                tag={card.tag}
+                bgColor={card.bg}
+                likes={card.likes}
+                onLike={() => handleLike(card.id)}
+              />
+            ))}
+          </main>
+        </div>
+      );
+    };
+
+    // 3. Render App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

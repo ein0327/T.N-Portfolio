@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalism & Micro-interactions | T.N Portfolio Demo</title>
+  <meta name="description" content="T.Nポートフォリオ - 極限まで削ぎ落としたミニマリズムデザインと、Reactステート制御による滑らかなマイクロインタラクションの実装デモです。">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <!-- Load React -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* =======================================================
+       Minimalism Tokens
+       ======================================================= */
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #111111;
+      --text-muted: #888888;
+      
+      --font-main: 'Inter', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Container */
+    #root {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 10vh 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 300;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.5rem;
+      line-height: 1.1;
+    }
+    p.subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      max-width: 600px;
+      line-height: 1.8;
+      margin-bottom: 4rem;
+    }
+
+    /* Minimal Gallery */
+    .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 6rem;
+      width: 100%;
+      margin-top: 4rem;
+    }
+    .gallery-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+    .gallery-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .img-placeholder {
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 16/9;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ccc;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      overflow: hidden;
+      position: relative;
+    }
+    .img-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(100%);
+      transition: filter 0.5s ease, transform 0.8s ease;
+    }
+    .img-placeholder:hover img {
+      filter: grayscale(0%);
+      transform: scale(1.02);
+    }
+    
+    .item-meta {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 600px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #eaeaea;
+      padding-bottom: 1rem;
+    }
+
+    /* Ripple Button */
+    .ripple-btn {
+      position: relative;
+      overflow: hidden;
+      background: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--text-color);
+      padding: 1rem 3rem;
+      font-family: var(--font-main);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      outline: none;
+      transition: color 0.4s ease;
+    }
+    .ripple-btn:hover {
+      color: #fff;
+    }
+    
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: var(--text-color);
+      transform: scale(0);
+      animation: rippleAnim 0.6s linear forwards;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 1; }
+    }
+
+    /* Fixed Return Btn */
+    .demo-return {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-decoration: none;
+      transition: color 0.3s;
+      z-index: 1000;
+    }
+    .demo-return:hover {
+      color: var(--text-color);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+  <a href="index.html#works" class="demo-return">← Return</a>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Ripple Button Component
+    const RippleButton = ({ children, onClick }) => {
+      const [ripples, setRipples] = useState([]);
+      const btnRef = useRef(null);
+
+      const addRipple = (e) => {
+        const rect = btnRef.current.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        const newRipple = { x, y, size, id: Date.now() };
+        setRipples((prev) => [...prev, newRipple]);
+
+        if (onClick) onClick(e);
+      };
+
+      // Clean up old ripples to prevent DOM bloat
+      useEffect(() => {
+        if (ripples.length > 0) {
+          const timeout = setTimeout(() => {
+            setRipples((prev) => prev.slice(1));
+          }, 600);
+          return () => clearTimeout(timeout);
+        }
+      }, [ripples]);
+
+      return (
+        <button className="ripple-btn" ref={btnRef} onClick={addRipple} onMouseLeave={() => setRipples([])}>
+          <span style={{ zIndex: 1, position: 'relative' }}>{children}</span>
+          {ripples.map(r => (
+            <span 
+              key={r.id} 
+              className="ripple" 
+              style={{ top: r.y, left: r.x, width: r.size, height: r.size }} 
+            />
+          ))}
+        </button>
+      );
+    };
+
+    // Staggered Fade-in Hook simulating Intersection Observer
+    const useFadeIn = (delay = 0) => {
+      const [isVisible, setIsVisible] = useState(false);
+      useEffect(() => {
+        const timer = setTimeout(() => setIsVisible(true), delay);
+        return () => clearTimeout(timer);
+      }, [delay]);
+      return isVisible;
+    };
+
+    const App = () => {
+      const showHeader = useFadeIn(100);
+      const showSubtitle = useFadeIn(400);
+      const showBtn = useFadeIn(700);
+      
+      // Simulate data for gallery
+      const items = [
+        { id: '01', title: 'Spatial Harmony', category: 'Architecture' },
+        { id: '02', title: 'Negative Space', category: 'Print' },
+      ];
+
+      return (
+        <div className="container">
+          <h1 style={{ opacity: showHeader ? 1 : 0, transform: showHeader ? 'translateY(0)' : 'translateY(20px)', transition: 'all 1s ease' }}>
+            Less is enough.
+          </h1>
+          <p className="subtitle" style={{ opacity: showSubtitle ? 1 : 0, transform: showSubtitle ? 'translateY(0)' : 'translateY(20px)', transition: 'all 1s ease' }}>
+            True minimalism isn't about the absence of elements, but the perfection of what remains. This component explores state-driven micro-interactions that breathe life into empty space.
+          </p>
+
+          <div style={{ opacity: showBtn ? 1 : 0, transition: 'opacity 1s ease' }}>
+            <RippleButton onClick={() => console.log('Ripple triggered!')}>
+              Discover Clarity
+            </RippleButton>
+          </div>
+
+          <div className="gallery">
+            {items.map((item, idx) => {
+              // Staggered reveal for gallery items
+              const isItemVisible = useFadeIn(1200 + (idx * 300));
+              return (
+                <div key={item.id} className={`gallery-item ${isItemVisible ? 'visible' : ''}`}>
+                  <div className="img-placeholder">
+                    <span>IMAGE_PLACEHOLDER</span>
+                  </div>
+                  <div className="item-meta">
+                    <span>{item.id}. {item.title}</span>
+                    <span>{item.category}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

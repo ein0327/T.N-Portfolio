@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typography-Led Design | T.N Portfolio Demo</title>
+  <meta name="description" content="T.Nポートフォリオ - Fluid Typographyを用いたパフォーマンス重視のタイポグラフィ・リードデザインの実装デモです。">
+  
+  <!-- Font Performance Optimization: Preconnect & Swap -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* =======================================================
+       Typography-Led Design Tokens
+       ======================================================= */
+    :root {
+      --color-bg: #F9F8F6; /* Cream */
+      --color-text: #1a1a1a;
+      --color-accent: #8b5cf6; /* Subtle Violet */
+      
+      --font-serif: 'Playfair Display', serif;
+      --font-sans: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* Container */
+    .container {
+      width: 90%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+
+    /* Typography Utilities */
+    .serif { font-family: var(--font-serif); }
+    .sans { font-family: var(--font-sans); }
+    .italic { font-style: italic; }
+    
+    /* Fluid Typography utilizing clamp() */
+    /* Scales smoothly between 3rem (at 320px) to 9rem (at 1400px) */
+    .fluid-title {
+      font-size: clamp(3rem, 10vw, 10rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 2rem;
+    }
+    .fluid-subtitle {
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      line-height: 1.2;
+      margin-bottom: 2rem;
+    }
+    .fluid-body {
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      line-height: 1.8;
+      max-width: 65ch; /* Optimal reading measure */
+      color: #4a4a4a;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0 4rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      margin-bottom: 4rem;
+    }
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-top: 8rem;
+      align-items: center;
+    }
+    .content-img {
+      width: 100%;
+      border-radius: 4px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    }
+    .quote-block {
+      padding: 3rem;
+      border-left: 2px solid var(--color-text);
+    }
+
+    /* Tech Spec Overlay */
+    .tech-spec {
+      margin-top: 4rem;
+      padding: 2rem;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 8px;
+    }
+    .tech-spec code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: var(--color-accent);
+    }
+
+    /* Mobile Adaptations */
+    @media (max-width: 900px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-top: 4rem;
+      }
+      .quote-block {
+        padding: 1.5rem;
+      }
+    }
+
+    /* Reveal Animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Return Button */
+    .demo-return {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--color-text);
+      color: var(--color-bg);
+      padding: 12px 24px;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 30px;
+      z-index: 100;
+      transition: transform 0.3s, background 0.3s;
+    }
+    .demo-return:hover {
+      transform: translateY(-3px);
+      background: var(--color-accent);
+    }
+
+    /* Bilingual Toggle */
+    .lang-toggle {
+      display: flex;
+      gap: 15px;
+      font-size: 0.9rem;
+    }
+    .lang-toggle button {
+      background: none;
+      border: none;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      color: var(--color-text);
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+    .lang-toggle button.is-active {
+      opacity: 1;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="reveal">
+      <div class="logo">No. 08</div>
+      <div class="lang-toggle">
+        <button class="lang-btn is-active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ja">JP</button>
+      </div>
+    </header>
+
+    <main class="hero">
+      <h1 class="fluid-title serif reveal" style="animation-delay: 0.1s;" data-en="The Art of <br><span class='italic'>Typography.</span>" data-ja="文字が紡ぐ<br><span class='italic'>美学。</span>">
+        The Art of <br><span class="italic">Typography.</span>
+      </h1>
+      
+      <p class="fluid-body reveal" style="animation-delay: 0.3s;" data-en="In a digital world overflowing with noise, absolute clarity is a luxury. This demonstration leverages CSS clamp() to achieve fluid typography—text that scales organically and flawlessly from the smallest mobile screens to massive 4K displays, without a single media query breakpoint." data-ja="情報が溢れるデジタル世界において、絶対的な「明瞭さ」は究極の贅沢です。このデモではCSSの clamp() 関数を活用した Fluid Typography を実装しており、単一のメディアクエリに頼ることなく、モバイルから4Kディスプレイまで文字サイズが有機的かつ完璧にスケーリングします。">
+        In a digital world overflowing with noise, absolute clarity is a luxury. This demonstration leverages CSS clamp() to achieve fluid typography—text that scales organically and flawlessly from the smallest mobile screens to massive 4K displays, without a single media query breakpoint.
+      </p>
+
+      <div class="tech-spec reveal" style="animation-delay: 0.5s;">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em;" data-en="Performance Focus" data-ja="パフォーマンスの焦点">Performance Focus</h3>
+        <p class="fluid-body" style="font-size: 0.9rem;" data-en="Fonts are loaded with <code>display=swap</code> to prevent Flash of Invisible Text (FOIT), ensuring content is immediately readable. The fluid scale utilizes viewport widths <code>vw</code> calculated mathematically against rem root values." data-ja="フォントは <code>display=swap</code> で読み込まれ、FOIT（不可視テキストのフラッシュ）を防ぎ、コンテンツが即座に読める状態を担保します。可変スケールはビューポート幅 <code>vw</code> と <code>rem</code> を組み合わせて数学的に計算されています。">
+          Fonts are loaded with <code>display=swap</code> to prevent Flash of Invisible Text (FOIT), ensuring content is immediately readable. The fluid scale utilizes viewport widths <code>vw</code> calculated mathematically against rem root values.
+        </p>
+      </div>
+    </main>
+
+    <section class="content-grid">
+      <div class="reveal">
+        <img src="img/typo-sculpture.png" alt="Abstract White Sculpture" class="content-img">
+      </div>
+      <div class="quote-block reveal">
+        <h2 class="fluid-subtitle serif" data-en="Readability is <br><span class='italic'>accessibility.</span>" data-ja="可読性とは、<br><span class='italic'>アクセシビリティである。</span>">Readability is <br><span class="italic">accessibility.</span></h2>
+        <p class="fluid-body" data-en="This layout is ideal for high-end editorial magazines, luxury brands, and art galleries that demand a sophisticated, typography-first approach to web design." data-ja="このレイアウトは、洗練されたタイポグラフィ・ファーストのアプローチを求めるハイエンドなエディトリアルマガジン、ラグジュアリーブランド、アートギャラリーなどのWebデザインに最適です。">This layout is ideal for high-end editorial magazines, luxury brands, and art galleries that demand a sophisticated, typography-first approach to web design.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <a href="index.html#works" class="demo-return" data-en="← Return to Portfolio" data-ja="← ポートフォリオに戻る">← Return to Portfolio</a>
+
+  <!-- Link the bilingual script -->
+  <script src="js/i18n.js"></script>
+</body>
+</html>
