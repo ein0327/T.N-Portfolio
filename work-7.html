@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swiss Design Architecture | T.N Portfolio Demo</title>
+  <meta name="description" content="T.Nポートフォリオ - CSS Gridとタイポグラフィを極限まで追求したスイス・デザインの実装デモです。">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    /* =======================================================
+       Swiss Design System & Tokens
+       ======================================================= */
+    :root {
+      --color-bg: #f4f4f0;
+      --color-text: #111111;
+      --color-accent: #E52E2D; /* Swiss Red */
+      --color-line: #111111;
+      
+      --font-swiss: 'Inter', sans-serif;
+      --grid-gap: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-swiss);
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Grid Wrapper */
+    .swiss-container {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--grid-gap);
+      padding: var(--grid-gap);
+      min-height: 100vh;
+      border: var(--grid-gap) solid var(--color-bg);
+    }
+
+    /* Structural Lines */
+    .border-top { border-top: 2px solid var(--color-line); }
+    .border-bottom { border-bottom: 2px solid var(--color-line); }
+    .border-left { border-left: 2px solid var(--color-line); }
+    .border-right { border-right: 2px solid var(--color-line); }
+
+    /* Typography */
+    h1 {
+      font-size: clamp(3rem, 8vw, 8rem);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+    h2 {
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    p {
+      font-size: 1rem;
+      font-weight: 400;
+    }
+    .num-label {
+      font-size: clamp(4rem, 10vw, 12rem);
+      font-weight: 900;
+      color: var(--color-accent);
+      line-height: 0.8;
+      letter-spacing: -0.05em;
+    }
+    .meta-text {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    /* Sections */
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 1rem;
+      border-bottom: 4px solid var(--color-line);
+      margin-bottom: 2rem;
+    }
+    
+    .hero-title {
+      grid-column: 1 / 9;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--color-line);
+    }
+
+    .hero-image {
+      grid-column: 9 / 13;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 2px solid var(--color-line);
+      display: flex;
+      align-items: flex-end;
+    }
+    .hero-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: contrast(1.2) grayscale(100%);
+    }
+    .hero-image::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--color-accent);
+      mix-blend-mode: multiply;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .hero-image:hover::after {
+      opacity: 1;
+    }
+
+    /* Lower Grid Area */
+    .module-a {
+      grid-column: 1 / 5;
+      padding: 2rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .module-b {
+      grid-column: 5 / 9;
+      padding: 2rem 0;
+      border-left: 2px solid var(--color-line);
+      padding-left: var(--grid-gap);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .module-c {
+      grid-column: 9 / 13;
+      padding: 2rem 0;
+      background-color: var(--color-text);
+      color: var(--color-bg);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .red-box {
+      background-color: var(--color-accent);
+      color: #fff;
+      padding: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: inline-block;
+      align-self: flex-start;
+    }
+
+    .demo-return {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--color-text);
+      color: var(--color-bg);
+      padding: 12px 24px;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 0;
+      z-index: 100;
+      transition: background 0.2s;
+    }
+    .demo-return:hover {
+      background: var(--color-accent);
+    }
+
+    /* Bilingual Toggle */
+    .lang-toggle {
+      display: flex;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .lang-toggle button {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-weight: inherit;
+      cursor: pointer;
+      color: var(--color-text);
+      opacity: 0.5;
+    }
+    .lang-toggle button.is-active {
+      opacity: 1;
+      border-bottom: 2px solid var(--color-accent);
+    }
+
+    /* Mobile Responsive - Strictly 1 Column */
+    @media (max-width: 900px) {
+      .swiss-container {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 10px;
+      }
+      .hero-title, .hero-image, .module-a, .module-b, .module-c {
+        grid-column: 1 / -1;
+      }
+      .module-b {
+        border-left: none;
+        border-top: 2px solid var(--color-line);
+        padding-left: 0;
+      }
+      .hero-image {
+        aspect-ratio: 4/3;
+        border-bottom: none;
+      }
+      header {
+        border-bottom: 2px solid var(--color-line);
+      }
+    }
+    
+    /* Reveal Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: revealAnim 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes revealAnim {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="swiss-container">
+    <header class="reveal">
+      <div class="meta-text">No. 07</div>
+      <div class="meta-text" style="font-size:1.2rem; font-weight:900; letter-spacing:0;">SWISS DESIGN.</div>
+      <div class="lang-toggle">
+        <button class="lang-btn is-active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ja">JP</button>
+      </div>
+    </header>
+
+    <div class="hero-title reveal" style="animation-delay: 0.1s;">
+      <h1 data-en="Structural<br>Integrity" data-ja="構造の<br>完全性">Structural<br>Integrity</h1>
+    </div>
+
+    <div class="hero-image reveal" style="animation-delay: 0.2s;">
+      <img src="img/swiss-arch.png" alt="Brutalist Architecture">
+    </div>
+
+    <div class="module-a reveal" style="animation-delay: 0.3s;">
+      <div class="red-box" data-en="Manifesto" data-ja="マニフェスト">Manifesto</div>
+      <h2 data-en="Form Follows Function in the Digital Space." data-ja="形態は機能に従う。デジタル空間における絶対的ルール。">Form Follows Function in the Digital Space.</h2>
+      <p data-en="This demo proves mastery over CSS Grid. By utilizing a strict 12-column mathematical layout, the design achieves an asymmetrical yet perfectly balanced aesthetic that is characteristic of the International Typographic Style." data-ja="このデモはCSS Gridの完全な制御を証明します。厳密な12カラムの数学的レイアウトを活用することで、国際タイポグラフィ様式に特有の、非対称でありながら完璧なバランスを持つ美学を実現しています。">This demo proves mastery over CSS Grid. By utilizing a strict 12-column mathematical layout, the design achieves an asymmetrical yet perfectly balanced aesthetic that is characteristic of the International Typographic Style.</p>
+    </div>
+
+    <div class="module-b reveal" style="animation-delay: 0.4s;">
+      <div class="num-label">1950</div>
+      <p class="meta-text" style="margin-top:1rem; border-top:1px solid #111; padding-top:1rem;" data-en="The origin of the Swiss Style, emphasizing cleanliness, readability, and objectivity." data-ja="清潔さ、可読性、客観性を強調するスイス・スタイルの起源。">The origin of the Swiss Style, emphasizing cleanliness, readability, and objectivity.</p>
+      
+      <div style="margin-top: 2rem;">
+        <h2 style="font-size:1.2rem; margin-bottom:0.5rem;" data-en="Key CSS Features:" data-ja="主要なCSS機能:">Key CSS Features:</h2>
+        <ul style="list-style: square inside; margin-left: 1rem; font-size: 0.9rem;">
+          <li>CSS Grid (grid-template-columns)</li>
+          <li>Fluid Typography (clamp)</li>
+          <li>Mix-blend-mode</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-c reveal" style="animation-delay: 0.5s;">
+      <div>
+        <h2 data-en="Target Client Profile" data-ja="想定クライアント層">Target Client Profile</h2>
+        <p style="margin-top:1rem; color:#aaa;" data-en="Ideal for B2B corporate sites, consulting firms, and architectural agencies that require a highly trustworthy, logical, and robust digital presence." data-ja="高い信頼性、論理性、堅牢なデジタルプレゼンスを必要とするB2B企業、コンサルティングファーム、建築事務所の案件に最適です。">Ideal for B2B corporate sites, consulting firms, and architectural agencies that require a highly trustworthy, logical, and robust digital presence.</p>
+      </div>
+      <div class="num-label" style="color:var(--color-bg); font-size:clamp(3rem, 6vw, 6rem); text-align:right;">GRID</div>
+    </div>
+
+  </div>
+
+  <a href="index.html#works" class="demo-return" data-en="← Return to Portfolio" data-ja="← ポートフォリオに戻る">← Return to Portfolio</a>
+
+  <script src="js/i18n.js"></script>
+</body>
+</html>
